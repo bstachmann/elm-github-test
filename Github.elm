@@ -24,7 +24,7 @@ type alias Model =
 
 type Msg
   = SampleQueryFetched (Result Http.Error String)
-  | TestNewApi
+  | TestNewApi String
 
 init : String -> (Model, Cmd Msg)
 init name =
@@ -42,7 +42,7 @@ view model =
           input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value model.user ] []
         ],
         div [class "form-group"] [
-          button [ class "btn btn-primary", onClick TestNewApi] [ text "Test new API" ]
+          button [ class "btn btn-primary", onClick (TestNewApi model.githubApiToken) ] [ text "Test new API" ]
         ]
       ]
     ],
@@ -59,10 +59,11 @@ view model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    TestNewApi
-      -> (model, callNewApi model.githubApiToken)
-    SampleQueryFetched (Result.Ok rstring)
-      -> ({model | repos = [ rstring ]}, Cmd.none)
+    TestNewApi apiToken
+      -> (model, callNewApi apiToken)
+    SampleQueryFetched (Result.Ok json)
+      -> ( { model | repos = [ json ], user = Result.withDefault "<nix>" ((decodeString (at ["data", "viewer", "login"] string) json))}
+        , Cmd.none)
     SampleQueryFetched (Result.Err message)
       -> ({model | repos = [ toString message ]}, Cmd.none)
 
@@ -73,11 +74,11 @@ subscriptions model =
 
 
 callNewApi : String -> Cmd Msg
-callNewApi user =
+callNewApi apiToken =
     let
       rq = Http.request
         { method = "POST"
-        , headers = [ Http.header  "Authorization" "bearer 81d7e682ef3418089d0999646f9467e76d76b7d1" ]
+        , headers = [ Http.header "Authorization" ("bearer " ++ apiToken) ]
         , url = "https://api.github.com/graphql"
         , body = Http.stringBody "application/json" "{ \"query\": \"query { viewer { login }}\""
         , expect = Http.expectString

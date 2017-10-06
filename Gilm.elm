@@ -1,10 +1,11 @@
 module Gilm exposing (..)
 
 import Bootstrap.Grid as Grid
+import Bootstrap.Form as Form
 import Bootstrap.Navbar as Navbar
 import Html exposing (Html, ul, li, text, div, form, label, button, input)
-import Html.Attributes exposing (value, for, id, type_, class, href)
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes exposing (value, for, id, type_, class, href, placeholder)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Http
 import Maybe exposing (..)
 import Json.Decode as JD exposing (..)
@@ -30,8 +31,8 @@ type alias Model =
 
 
 type Msg
-    = SampleQueryFetched (Result Http.Error String)
-    | TestNewApi String
+    = Login String
+    | UserDataFetched (Result Http.Error String)
     | NavbarMsg Navbar.State
     | Logout
 
@@ -74,32 +75,55 @@ navbarView model =
     Navbar.config NavbarMsg
         |> Navbar.withAnimation
         |> Navbar.brand [] [ text "Gilm" ]
-        |> Navbar.customItems
-            (case model.user of
-                Nothing ->
-                    [ Navbar.customItem (input [ type_ "password", Html.Attributes.value model.githubApiToken ] [ text "init" ])
-                    , Navbar.customItem (button [ onClick (TestNewApi model.githubApiToken) ] [ text "Login" ])
-                    ]
-
-                Just username ->
-                    [ Navbar.customItem (label [] [ text username ])
-                    , Navbar.customItem (button [ onClick (Logout) ] [ text "Log out" ])
-                    ]
-            )
+        |> Navbar.customItems [Navbar.customItem (navbarUserSectionView model)]
         |> Navbar.view model.navbarState
+
+navbarUserSectionView : Model -> Html Msg
+navbarUserSectionView model =
+    case model.user of
+        Nothing ->
+            Html.div
+              [ class "form-inline" ]
+              [ input
+                [ type_ "password"
+                , class "form-control my-4 my-sm-0"
+                , placeholder "Your Github API Token"
+                , Html.Attributes.value model.githubApiToken
+                ]
+                [  ]
+              , input
+                [ type_ "button"
+                , class "btn ml-2 my-4 my-sm-0"
+                , onClick (Login model.githubApiToken)
+                , Html.Attributes.value "Log In"
+                ]
+                []
+              ]
+
+        Just username ->
+          Form.formInline []
+            [ text username
+            , input
+              [ type_ "button"
+              , class "btn ml-2 my-4 my-sm-0"
+              , onClick Logout
+              , Html.Attributes.value "Log Out"
+              ]
+              []
+            ]
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        TestNewApi apiToken ->
-            ( model, callNewApi apiToken )
+        Login newApiToken->
+              ( { model | githubApiToken = newApiToken }, callNewApi newApiToken )
 
-        SampleQueryFetched (Result.Ok json) ->
+        UserDataFetched (Result.Ok json) ->
             ( { model | repos = [ json ], user = Result.toMaybe ((decodeString (at [ "data", "viewer", "login" ] string) json)) }
             , Cmd.none
             )
 
-        SampleQueryFetched (Result.Err message) ->
+        UserDataFetched (Result.Err message) ->
             ( { model | repos = [ toString message ], user = Nothing }, Cmd.none )
 
         NavbarMsg state ->
@@ -128,4 +152,4 @@ callNewApi apiToken =
                 , withCredentials = False
                 }
     in
-        Http.send SampleQueryFetched rq
+        Http.send UserDataFetched rq

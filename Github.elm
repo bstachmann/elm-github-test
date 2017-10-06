@@ -17,21 +17,18 @@ main =
         }
 
 type alias Model =
-    { user : String,
-      githubApiToken : String,
+    { githubApiToken : String,
+      user : String,
       repos : List String
     }
 
 type Msg
-  = ReposFetched (Result Http.Error (List String))
-  | SampleQueryFetched (Result Http.Error String)
-  | FetchRepos
+  = SampleQueryFetched (Result Http.Error String)
   | TestNewApi
-  | UserNameChanged String
 
 init : String -> (Model, Cmd Msg)
 init name =
-  ({user = name, githubApiToken = apiToken, repos = []}, fetchReposFromUser name)
+  ({user = name, githubApiToken = apiToken, repos = []}, Cmd.none)
 
 view : Model -> Html Msg
 view model =
@@ -39,13 +36,12 @@ view model =
     div [class "row"] [
       div [class "form-horizontal col-md-4"] [
         div [class "form-group"] [
-          label [ for "username-field" ] [ text "Username" ],
-          input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value model.user, onInput UserNameChanged] [],
           label [ for "git-hub-api-token" ] [ text "Github API Token" ],
-          input [ class "form-control", id "git-hub-api-token", type_ "password", Html.Attributes.value model.githubApiToken] []
+          input [ class "form-control", id "git-hub-api-token", type_ "password", Html.Attributes.value model.githubApiToken ] [],
+          label [ for "username-field" ] [ text "Username" ],
+          input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value model.user ] []
         ],
         div [class "form-group"] [
-          button [ class "btn btn-primary", onClick FetchRepos] [ text "Fetch Repos" ],
           button [ class "btn btn-primary", onClick TestNewApi] [ text "Test new API" ]
         ]
       ]
@@ -63,34 +59,17 @@ view model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ReposFetched (Result.Ok rrepos)
-      -> ({model | repos = rrepos}, Cmd.none)
-    ReposFetched (Result.Err message)
-      -> ({model | repos = [ toString message ]}, Cmd.none)
-    SampleQueryFetched (Result.Ok rstring)
-      -> ({model | repos = [ "new api", rstring ]}, Cmd.none)
-    SampleQueryFetched (Result.Err message)
-      -> ({model | repos = [ toString message ]}, Cmd.none)
-    UserNameChanged user
-      -> ({model | user = user}, Cmd.none)
-    FetchRepos
-      -> (model, fetchReposFromUser model.user)
     TestNewApi
       -> (model, callNewApi model.githubApiToken)
+    SampleQueryFetched (Result.Ok rstring)
+      -> ({model | repos = [ rstring ]}, Cmd.none)
+    SampleQueryFetched (Result.Err message)
+      -> ({model | repos = [ toString message ]}, Cmd.none)
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.none
-
-fetchReposFromUser : String -> Cmd Msg
-fetchReposFromUser user =
-  let
-    url =
-      "https://api.github.com/users/" ++ user ++ "/repos"
-  in
-    Http.send ReposFetched <|
-      (Http.get url decodeRepos )
 
 
 callNewApi : String -> Cmd Msg
@@ -98,7 +77,7 @@ callNewApi user =
     let
       rq = Http.request
         { method = "POST"
-        , headers = [ Http.header  "Authorization" "bearer 03e3a5e6ce23055a3e53852e177d0ab5684c8c23" ]
+        , headers = [ Http.header  "Authorization" "bearer 81d7e682ef3418089d0999646f9467e76d76b7d1" ]
         , url = "https://api.github.com/graphql"
         , body = Http.stringBody "application/json" "{ \"query\": \"query { viewer { login }}\""
         , expect = Http.expectString
@@ -107,8 +86,3 @@ callNewApi user =
       }
     in
       Http.send SampleQueryFetched rq
-
-
-decodeRepos : JD.Decoder (List String)
-decodeRepos =
-  JD.list (JD.field "name" JD.string)

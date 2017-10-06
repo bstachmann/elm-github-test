@@ -9,7 +9,6 @@ import Http
 import Maybe exposing (..)
 import Json.Decode as JD exposing (..)
 import Task
-
 import GithubApiToken exposing (apiToken)
 
 
@@ -86,14 +85,15 @@ navbarView model =
         |> Navbar.customItems
             (case model.user of
                 Nothing ->
-                    [ Navbar.customItem ( input [ type_ "password", Html.Attributes.value model.githubApiToken ] [ text "init" ] )
-                    , Navbar.customItem ( button [ onClick (TestNewApi model.githubApiToken) ] [ text "Login" ] )
+                    [ Navbar.customItem (input [ type_ "password", Html.Attributes.value model.githubApiToken ] [ text "init" ])
+                    , Navbar.customItem (button [ onClick (TestNewApi model.githubApiToken) ] [ text "Login" ])
                     ]
+
                 Just username ->
-                    [ Navbar.customItem ( label [] [ text username ] )
-                    , Navbar.customItem ( button [ onClick (Logout) ] [ text "Log out" ] )
+                    [ Navbar.customItem (label [] [ text username ])
+                    , Navbar.customItem (button [ onClick (Logout) ] [ text "Log out" ])
                     ]
-             )
+            )
         |> Navbar.view model.navbarState
 
 
@@ -115,7 +115,7 @@ update msg model =
             ( { model | navbarState = state }, Cmd.none )
 
         Logout ->
-            ( { model | user = Nothing  }, Cmd.none )
+            ( { model | user = Nothing }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

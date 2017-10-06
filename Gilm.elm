@@ -57,14 +57,6 @@ view model =
         [ Grid.row [] [ Grid.col [] [ navbarView model ] ]
         , Grid.row []
             [ Grid.col []
-                [ div [ class "form-group" ]
-                    [ label [ for "username-field" ] [ text "Username" ]
-                    , input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value (Maybe.withDefault "xx" (model.user)) ] []
-                    ]
-                ]
-            ]
-        , Grid.row []
-            [ Grid.col []
                 [ text "Repos"
                 ]
             ]
@@ -95,7 +87,6 @@ navbarView model =
                     ]
             )
         |> Navbar.view model.navbarState
-
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =

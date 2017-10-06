@@ -1,17 +1,24 @@
 module Github exposing (..)
 
+import Bootstrap.CDN as CDN
+import Bootstrap.Grid as Grid
+
 import Html exposing (Html,ul,li,text,div,form,label,button,input)
 import Html.Attributes exposing (value,for,id,type_,class)
 import Html.Events exposing (onClick, onInput)
+
 import Http
+
 import Json.Decode as JD exposing (..)
+
 import Task
+
 import GithubApiToken exposing (apiToken)
 
 main =
     Html.program
-        { init = init "rpreissel"
-        , view = view
+        { init = init "<nobody>"
+        , view = viewWithBootstrap
         , update = update
         , subscriptions = subscriptions
         }
@@ -30,11 +37,20 @@ init : String -> (Model, Cmd Msg)
 init name =
   ({user = name, githubApiToken = apiToken, repos = []}, Cmd.none)
 
+
+viewWithBootstrap : Model -> Html Msg
+viewWithBootstrap model =
+    Grid.container []
+        [ CDN.stylesheet
+        , view model
+        ]
+
+
 view : Model -> Html Msg
 view model =
-  div [class "container"] [
-    div [class "row"] [
-      div [class "form-horizontal col-md-4"] [
+  Grid.container [] [
+    Grid.row [] [
+      Grid.col [] [
         div [class "form-group"] [
           label [ for "git-hub-api-token" ] [ text "Github API Token" ],
           input [ class "form-control", id "git-hub-api-token", type_ "password", Html.Attributes.value model.githubApiToken ] [],
@@ -46,12 +62,16 @@ view model =
         ]
       ]
     ],
-    div [class "row"] [
-      text "Repos"
+    Grid.row [] [
+      Grid.col [] [
+        text "Repos"
+      ]
     ],
-    div [class "row"] [
-      ul []
-        (List.map (\r -> li [] [ text r ]) model.repos)
+    Grid.row [] [
+      Grid.col [] [
+        ul []
+          (List.map (\r -> li [] [ text r ]) model.repos)
+      ]
     ]
   ]
 

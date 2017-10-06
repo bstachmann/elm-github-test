@@ -6,14 +6,16 @@ import Html exposing (Html, ul, li, text, div, form, label, button, input)
 import Html.Attributes exposing (value, for, id, type_, class, href)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Maybe exposing (..)
 import Json.Decode as JD exposing (..)
 import Task
+
 import GithubApiToken exposing (apiToken)
 
 
 main =
     Html.program
-        { init = init "<nobody>"
+        { init = init (Just "<nobody>")
         , view = view
         , update = update
         , subscriptions = subscriptions
@@ -23,7 +25,7 @@ main =
 type alias Model =
     { navbarState : Navbar.State
     , githubApiToken : String
-    , user : String
+    , user : Maybe String
     , repos : List String
     }
 
@@ -32,9 +34,10 @@ type Msg
     = SampleQueryFetched (Result Http.Error String)
     | TestNewApi String
     | NavbarMsg Navbar.State
+    | Logout
 
 
-init : String -> ( Model, Cmd Msg )
+init : Maybe String -> ( Model, Cmd Msg )
 init name =
     let
         ( navbarState, navbarCmd ) =
@@ -57,7 +60,7 @@ view model =
             [ Grid.col []
                 [ div [ class "form-group" ]
                     [ label [ for "username-field" ] [ text "Username" ]
-                    , input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value model.user ] []
+                    , input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value (Maybe.withDefault "xx" (model.user)) ] []
                     ]
                 ]
             ]
@@ -81,15 +84,18 @@ navbarView model =
         |> Navbar.withAnimation
         |> Navbar.brand [] [ text "Gilm" ]
         |> Navbar.customItems
-            [ Navbar.customItem ( input [ type_ "password", Html.Attributes.value model.githubApiToken ] [ text "init" ] )
-            , Navbar.customItem ( button [ onClick (TestNewApi model.githubApiToken) ] [ text "Login" ] )
-            ]
+            (case model.user of
+                Nothing ->
+                    [ Navbar.customItem ( input [ type_ "password", Html.Attributes.value model.githubApiToken ] [ text "init" ] )
+                    , Navbar.customItem ( button [ onClick (TestNewApi model.githubApiToken) ] [ text "Login" ] )
+                    ]
+                Just username ->
+                    [ Navbar.customItem ( label [] [ text username ] )
+                    , Navbar.customItem ( button [ onClick (Logout) ] [ text "Log out" ] )
+                    ]
+             )
         |> Navbar.view model.navbarState
 
-
-        --    [ button [ class "btn btn-primary",  ] [ text "Test new API" ]
-
-      --  input [ class "form-control", id "git-hub-api-token", ,  ] []
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -98,15 +104,18 @@ update msg model =
             ( model, callNewApi apiToken )
 
         SampleQueryFetched (Result.Ok json) ->
-            ( { model | repos = [ json ], user = Result.withDefault "<nix>" ((decodeString (at [ "data", "viewer", "login" ] string) json)) }
+            ( { model | repos = [ json ], user = Result.toMaybe ((decodeString (at [ "data", "viewer", "login" ] string) json)) }
             , Cmd.none
             )
 
         SampleQueryFetched (Result.Err message) ->
-            ( { model | repos = [ toString message ] }, Cmd.none )
+            ( { model | repos = [ toString message ], user = Nothing }, Cmd.none )
 
         NavbarMsg state ->
             ( { model | navbarState = state }, Cmd.none )
+
+        Logout ->
+            ( { model | user = Nothing  }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

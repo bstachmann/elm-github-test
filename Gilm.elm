@@ -1,6 +1,5 @@
-module Github exposing (..)
+module Gilm exposing (..)
 
-import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 
 import Html exposing (Html,ul,li,text,div,form,label,button,input)
@@ -18,7 +17,7 @@ import GithubApiToken exposing (apiToken)
 main =
     Html.program
         { init = init "<nobody>"
-        , view = viewWithBootstrap
+        , view = view
         , update = update
         , subscriptions = subscriptions
         }
@@ -38,12 +37,6 @@ init name =
   ({user = name, githubApiToken = apiToken, repos = []}, Cmd.none)
 
 
-viewWithBootstrap : Model -> Html Msg
-viewWithBootstrap model =
-    Grid.container []
-        [ CDN.stylesheet
-        , view model
-        ]
 
 
 view : Model -> Html Msg

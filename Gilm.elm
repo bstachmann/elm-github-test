@@ -56,13 +56,8 @@ view model =
         , Grid.row []
             [ Grid.col []
                 [ div [ class "form-group" ]
-                    [ label [ for "git-hub-api-token" ] [ text "Github API Token" ]
-                    , input [ class "form-control", id "git-hub-api-token", type_ "password", Html.Attributes.value model.githubApiToken ] []
-                    , label [ for "username-field" ] [ text "Username" ]
+                    [ label [ for "username-field" ] [ text "Username" ]
                     , input [ class "form-control", id "username-field", type_ "text", Html.Attributes.value model.user ] []
-                    ]
-                , div [ class "form-group" ]
-                    [ button [ class "btn btn-primary", onClick (TestNewApi model.githubApiToken) ] [ text "Test new API" ]
                     ]
                 ]
             ]
@@ -79,6 +74,22 @@ view model =
             ]
         ]
 
+
+navbarView : Model -> Html Msg
+navbarView model =
+    Navbar.config NavbarMsg
+        |> Navbar.withAnimation
+        |> Navbar.brand [] [ text "Gilm" ]
+        |> Navbar.customItems
+            [ Navbar.customItem ( input [ type_ "password", Html.Attributes.value model.githubApiToken ] [ text "init" ] )
+            , Navbar.customItem ( button [ onClick (TestNewApi model.githubApiToken) ] [ text "Login" ] )
+            ]
+        |> Navbar.view model.navbarState
+
+
+        --    [ button [ class "btn btn-primary",  ] [ text "Test new API" ]
+
+      --  input [ class "form-control", id "git-hub-api-token", ,  ] []
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -118,14 +129,3 @@ callNewApi apiToken =
                 }
     in
         Http.send SampleQueryFetched rq
-
-
-navbarView : Model -> Html Msg
-navbarView model =
-    Navbar.config NavbarMsg
-        |> Navbar.withAnimation
-        |> Navbar.brand [] [ text "Gilm" ]
-        |> Navbar.items
-            [ Navbar.itemLink [ href "#" ] [ text "MOIN" ]
-            ]
-        |> Navbar.view model.navbarState

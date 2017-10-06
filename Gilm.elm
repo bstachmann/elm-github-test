@@ -1,6 +1,7 @@
 module Gilm exposing (..)
 
 import Bootstrap.Grid as Grid
+import Bootstrap.Navbar as Navbar
 
 import Html exposing (Html,ul,li,text,div,form,label,button,input)
 import Html.Attributes exposing (value,for,id,type_,class)
@@ -31,6 +32,7 @@ type alias Model =
 type Msg
   = SampleQueryFetched (Result Http.Error String)
   | TestNewApi String
+  | Nix
 
 init : String -> (Model, Cmd Msg)
 init name =
@@ -42,7 +44,8 @@ init name =
 view : Model -> Html Msg
 view model =
   Grid.container [] [
-    Grid.row [] [
+      Grid.row [] [Grid.col [] [navbarView model]]
+    , Grid.row [] [
       Grid.col [] [
         div [class "form-group"] [
           label [ for "git-hub-api-token" ] [ text "Github API Token" ],
@@ -79,6 +82,8 @@ update msg model =
         , Cmd.none)
     SampleQueryFetched (Result.Err message)
       -> ({model | repos = [ toString message ]}, Cmd.none)
+    Nix
+      -> (model, Cmd.none)
 
 
 subscriptions : Model -> Sub Msg
@@ -100,3 +105,17 @@ callNewApi apiToken =
       }
     in
       Http.send SampleQueryFetched rq
+
+
+navbarView : Model -> Html Msg
+navbarView model =
+    Navbar.config navbarMessage
+        |> Navbar.withAnimation
+        |> Navbar.brand [] [ text "Gilm"]
+        -- |> Navbar.items
+        --     [ Navbar.itemLink [] [ text "Item"]
+        --     , Navbar.itemLink [] [ text "Item 2"]
+        --     ]
+        |> Navbar.view (Tuple.first (Navbar.initialState (\ _ -> "c")))
+
+navbarMessage _ = Nix

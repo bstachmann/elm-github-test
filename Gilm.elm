@@ -3,7 +3,7 @@ module Gilm exposing (..)
 import Bootstrap.Grid as Grid
 import Bootstrap.Navbar as Navbar
 import Html exposing (Html, ul, li, text, div, form, label, button, input)
-import Html.Attributes exposing (value, for, id, type_, class)
+import Html.Attributes exposing (value, for, id, type_, class, href)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as JD exposing (..)
@@ -21,7 +21,8 @@ main =
 
 
 type alias Model =
-    { githubApiToken : String
+    { navbarState : Navbar.State
+    , githubApiToken : String
     , user : String
     , repos : List String
     }
@@ -30,12 +31,22 @@ type alias Model =
 type Msg
     = SampleQueryFetched (Result Http.Error String)
     | TestNewApi String
-    | Nix
+    | NavbarMsg Navbar.State
 
 
 init : String -> ( Model, Cmd Msg )
 init name =
-    ( { user = name, githubApiToken = apiToken, repos = [] }, Cmd.none )
+    let
+        ( navbarState, navbarCmd ) =
+            Navbar.initialState NavbarMsg
+    in
+        ( { user = name
+          , githubApiToken = apiToken
+          , repos = []
+          , navbarState = navbarState
+          }
+        , navbarCmd
+        )
 
 
 view : Model -> Html Msg
@@ -83,8 +94,8 @@ update msg model =
         SampleQueryFetched (Result.Err message) ->
             ( { model | repos = [ toString message ] }, Cmd.none )
 
-        Nix ->
-            ( model, Cmd.none )
+        NavbarMsg state ->
+            ( { model | navbarState = state }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -111,15 +122,10 @@ callNewApi apiToken =
 
 navbarView : Model -> Html Msg
 navbarView model =
-    Navbar.config navbarMessage
+    Navbar.config NavbarMsg
         |> Navbar.withAnimation
         |> Navbar.brand [] [ text "Gilm" ]
-        -- |> Navbar.items
-        --     [ Navbar.itemLink [] [ text "Item"]
-        --     , Navbar.itemLink [] [ text "Item 2"]
-        --     ]
-        |> Navbar.view (Tuple.first (Navbar.initialState (\_ -> "c")))
-
-
-navbarMessage _ =
-    Nix
+        |> Navbar.items
+            [ Navbar.itemLink [ href "#" ] [ text "MOIN" ]
+            ]
+        |> Navbar.view model.navbarState

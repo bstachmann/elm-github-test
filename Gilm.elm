@@ -75,48 +75,50 @@ navbarView model =
     Navbar.config NavbarMsg
         |> Navbar.withAnimation
         |> Navbar.brand [] [ text "Gilm" ]
-        |> Navbar.customItems [Navbar.customItem (navbarUserSectionView model)]
+        |> Navbar.customItems [ Navbar.customItem (navbarUserSectionView model) ]
         |> Navbar.view model.navbarState
+
 
 navbarUserSectionView : Model -> Html Msg
 navbarUserSectionView model =
     case model.user of
         Nothing ->
             Html.div
-              [ class "form-inline" ]
-              [ input
-                [ type_ "password"
-                , class "form-control my-4 my-sm-0"
-                , placeholder "Your Github API Token"
-                , Html.Attributes.value model.githubApiToken
+                [ class "form-inline" ]
+                [ input
+                    [ type_ "password"
+                    , class "form-control my-4 my-sm-0"
+                    , placeholder "Your Github API Token"
+                    , Html.Attributes.value model.githubApiToken
+                    ]
+                    []
+                , input
+                    [ type_ "button"
+                    , class "btn ml-2 my-4 my-sm-0"
+                    , onClick (Login model.githubApiToken)
+                    , Html.Attributes.value "Log In"
+                    ]
+                    []
                 ]
-                [  ]
-              , input
-                [ type_ "button"
-                , class "btn ml-2 my-4 my-sm-0"
-                , onClick (Login model.githubApiToken)
-                , Html.Attributes.value "Log In"
-                ]
-                []
-              ]
 
         Just username ->
-          Form.formInline []
-            [ text username
-            , input
-              [ type_ "button"
-              , class "btn ml-2 my-4 my-sm-0"
-              , onClick Logout
-              , Html.Attributes.value "Log Out"
-              ]
-              []
-            ]
+            Form.formInline []
+                [ text username
+                , input
+                    [ type_ "button"
+                    , class "btn ml-2 my-4 my-sm-0"
+                    , onClick Logout
+                    , Html.Attributes.value "Log Out"
+                    ]
+                    []
+                ]
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Login newApiToken->
-              ( { model | githubApiToken = newApiToken }, callNewApi newApiToken )
+        Login newApiToken ->
+            ( { model | githubApiToken = newApiToken }, callNewApi newApiToken )
 
         UserDataFetched (Result.Ok json) ->
             ( { model | repos = [ json ], user = Result.toMaybe ((decodeString (at [ "data", "viewer", "login" ] string) json)) }

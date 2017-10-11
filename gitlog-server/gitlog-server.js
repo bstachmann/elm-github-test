@@ -1,6 +1,7 @@
 var http = require("http");
-var sys = require('util')
+var sys = require('util');
 var child_process = require('child_process');
+const { URL } = require('url');
 
 http.createServer(function (request, response) {
 
@@ -11,24 +12,13 @@ http.createServer(function (request, response) {
 
    var output = "<no response>";
 
-  //  var child = exec("pwd", function (error, stdout, stderr) {
-   //
-  //    console.log('stdout: ' + stdout);
-  //    console.log('stderr: ' + stderr);
-   //
-  //    if (error !== null) {
-  //      console.log('exec error: ' + error);
-  //    } else {
-  //      output = stdout;
-  //    }
-   //
-  //  });
-
    output = child_process.execSync("git log --oneline", {});
 
    response.write('hullatrulla \n');
    response.write('url '+ request.url +'\n');
-   response.write('hullatrulla \n');
+   var sp = (new URL(request.url, 'https://example.org/')).searchParams
+    response.write('parans' + sp.toString() + '\n');
+   response.write('K  '+sp.get( 'kaese') + '\n');
    response.write('headers '+request.headers+' \n');
    response.write('hullatrulla \n');
    response.end('Hello World. Output is ' + output+ '\n');

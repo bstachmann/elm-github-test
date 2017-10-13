@@ -41,6 +41,12 @@ sectionWidth =
     80
 
 
+connectorWidth =
+    80
+
+
+
+
 lane : Int -> Lane
 lane nr =
     { nr = nr
@@ -62,17 +68,36 @@ sample_sections : List Section
 sample_sections =
     [ { id = "A", x0 = 100, lane = lane 0, predecessor_lanes = [ lane 0, lane 1 ] }
     , { id = "B", x0 = 100, lane = lane 1, predecessor_lanes = [ lane 1 ] }
-    , { id = "C", x0 = 100, lane = lane 2, predecessor_lanes = [ lane 0, lane 2 ] }
+    , { id = "C", x0 = 100, lane = lane 2, predecessor_lanes = [ lane 2, lane 0 ] }
     , { id = "D", x0 = 100, lane = lane 3, predecessor_lanes = [] }
     , { id = "E", x0 = 100, lane = lane 4, predecessor_lanes = [ lane 4, lane 1 ] }
     ]
 
 
+point : Int -> Int -> String
+point x y =
+  (toString x) ++ "," ++ (toString y) ++ " "
+
+renderConnection : Section -> Lane -> List (Svg Msg)
+renderConnection section pred =
+    [ polyline
+        [ fill pred.color
+        , fillOpacity "0.7"
+        , points
+            ( (point (section.x0 - connectorWidth) pred.y0)
+            ++ (point section.x0 section.lane.y0)
+            ++ (point section.x0 section.lane.y1)
+            ++ (point (section.x0 - connectorWidth) pred.y1)
+            )
+        ]
+        []
+    ]
+
 render : Section -> List (Svg Msg)
 render section =
-    rect [ x (toString section.x0), y (toString section.lane.y0), width (toString sectionWidth), height (toString laneHeight), fill section.lane.color ] []
+    rect [ x (toString section.x0), y (toString section.lane.y0), width (toString sectionWidth), height (toString laneHeight), fill section.lane.color, fillOpacity "0.7" ] []
         :: text_ [ x (toString section.x0), y (toString section.lane.y1) ] [ text <| "<" ++ section.id ++ ">" ]
-        :: []
+        :: (concatMap (renderConnection section) <| List.reverse <| section.predecessor_lanes)
 
 
 main : Html Msg

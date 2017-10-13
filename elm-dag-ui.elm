@@ -52,6 +52,7 @@ lane nr =
 
 type alias Section =
     { id : String
+    , x0 : Int
     , lane : Lane
     , predecessor_lanes : List Lane
     }
@@ -59,18 +60,18 @@ type alias Section =
 
 sample_sections : List Section
 sample_sections =
-    [ { id = "A", lane = lane 0, predecessor_lanes = [ lane 0, lane 1 ] }
-    , { id = "B", lane = lane 1, predecessor_lanes = [ lane 1 ] }
-    , { id = "C", lane = lane 2, predecessor_lanes = [ lane 0, lane 2 ] }
-    , { id = "D", lane = lane 3, predecessor_lanes = [] }
-    , { id = "E", lane = lane 4, predecessor_lanes = [ lane 4, lane 1 ] }
+    [ { id = "A", x0 = 100, lane = lane 0, predecessor_lanes = [ lane 0, lane 1 ] }
+    , { id = "B", x0 = 100, lane = lane 1, predecessor_lanes = [ lane 1 ] }
+    , { id = "C", x0 = 100, lane = lane 2, predecessor_lanes = [ lane 0, lane 2 ] }
+    , { id = "D", x0 = 100, lane = lane 3, predecessor_lanes = [] }
+    , { id = "E", x0 = 100, lane = lane 4, predecessor_lanes = [ lane 4, lane 1 ] }
     ]
 
 
 render : Section -> List (Svg Msg)
 render section =
-    rect [ x "50", y (toString section.lane.y0), width (toString sectionWidth), height (toString laneHeight), fill section.lane.color ] []
-        :: text_ [ x "50", y (toString section.lane.y1) ] [ text <| "<" ++ section.id ++ ">" ]
+    rect [ x (toString section.x0), y (toString section.lane.y0), width (toString sectionWidth), height (toString laneHeight), fill section.lane.color ] []
+        :: text_ [ x (toString section.x0), y (toString section.lane.y1) ] [ text <| "<" ++ section.id ++ ">" ]
         :: []
 
 

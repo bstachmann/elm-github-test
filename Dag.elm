@@ -1,32 +1,9 @@
-module Main exposing (main)
+module Dag exposing (Dag, Node, empty, node, mapNodes)
 
 import Dict exposing (Dict, get, values)
-import Html exposing (Html)
-import List exposing (foldl, intersperse, map)
+import List exposing (foldl, map)
 import Maybe
 import Set exposing (Set, filter, member, remove)
-
-
-type Msg
-    = Nothing
-
-
-main : Html Msg
-main =
-    let
-        g =
-            empty identity
-                |> node "A" []
-                |> node "B" [ "A" ]
-                |> node "C" [ "B" ]
-                |> node "D" [ "A" ]
-                |> node "E" [ "C", "D" ]
-                |> node "F" [ "C" ]
-    in
-        mapNodes toString g
-            |> map Html.text
-            |> intersperse (Html.br [] [])
-            |> Html.body []
 
 
 type Dag comparable payload

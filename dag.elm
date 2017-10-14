@@ -1,10 +1,10 @@
-module Dag exposing (main)
+module Main exposing (main)
 
-import Array exposing (Array, length, push)
+import Array exposing (Array, length, push, fromList)
 import Html exposing (Html)
 import List exposing (foldl, map)
 import Maybe
-import Set exposing (Set, filter, insert, member, remove)
+import Set exposing (Set, filter, insert, member, remove, singleton)
 
 
 type Msg
@@ -14,34 +14,71 @@ type Msg
 main : Html Msg
 main =
     let
-        greeting = "Hello, WoWO"
-        g0 = Dag (NewNode -1 "nix" []) Array.empty Set.empty
-        gA = node "A" [] g0
-        gB = node "B" [latest gA] gA
-        gC = node "C" [latest gB] gB
-        gD = node "D" [latest gA] gC
-        gE = node "E" [latest gC, latest gD] gD
-        gF = node "F" [latest gC] gE
+        a =
+            buildSingleton "A"
+
+        b =
+            buildNode "B" [ a ] a
+
+        c =
+            buildNode "C" [ b ] b
+
+        d =
+            buildNode "D" [ a ] c
+
+        e =
+            buildNode "E" [ c, d ] d
+
+        f =
+            buildNode "F" [ c ] e
     in
-      mapNodes toString gF
-      |> map Html.text
-      |> List.intersperse (Html.br [] [])
-      |>  Html.body []
+        build f
+            |> mapNodes toString
+            |> map Html.text
+            |> List.intersperse (Html.br [] [])
+            |> Html.body []
+
+
+type DagBuilder payload
+    = NewDagBuilder (Node payload) (Dag payload)
 
 
 type Dag payload
-    = Dag (Node payload) (Array (Node payload)) (Set Int)
+    = NewDag (Array (Node payload)) (Set Int)
 
 
 type Node payload
     = NewNode Int payload (List (Node payload))
 
 
-node : payload -> List (Node payload) -> Dag payload -> Dag payload
-node payload predecessors (Dag latest dagNodes rootIndexes) =
+empty : Dag payload
+empty =
+    NewDag Array.empty Set.empty
+
+
+buildSingleton : payload -> DagBuilder payload
+buildSingleton payload =
+    let
+        rootNode =
+            NewNode 0 payload []
+
+        nodes =
+            fromList [ rootNode ]
+
+        rootIndexes =
+            singleton 0
+    in
+        NewDagBuilder rootNode (NewDag nodes rootIndexes)
+
+
+buildNode : payload -> List (DagBuilder payload) -> DagBuilder payload -> DagBuilder payload
+buildNode payload predecessorBuilders (NewDagBuilder _ (NewDag dagNodes rootIndexes)) =
     let
         indexOfNewNode =
             length dagNodes
+
+        predecessors =
+            map latest predecessorBuilders
 
         predecessorIndexes =
             map indexOf predecessors
@@ -56,7 +93,7 @@ node payload predecessors (Dag latest dagNodes rootIndexes) =
         newNodes =
             push newNode dagNodes
     in
-        Dag newNode newNodes newRootIndexes
+        NewDagBuilder newNode (NewDag newNodes newRootIndexes)
 
 
 indexOf : Node payload -> Int
@@ -68,11 +105,17 @@ payload : Node payload -> payload
 payload (NewNode _ p _) =
     p
 
-latest : Dag payload -> Node payload
-latest (Dag latest _ _) =
+
+latest : DagBuilder payload -> Node payload
+latest (NewDagBuilder latest _) =
     latest
 
 
+build : DagBuilder payload -> Dag payload
+build (NewDagBuilder _ dag) =
+    dag
+
+
 mapNodes : (Node a -> b) -> Dag a -> List b
-mapNodes function (Dag latest dagNodes rootIndexes) =
+mapNodes function (NewDag dagNodes rootIndexes) =
     Array.map function dagNodes |> Array.toList

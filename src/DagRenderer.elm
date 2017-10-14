@@ -1,14 +1,9 @@
-module Main exposing (main)
+module DagRenderer exposing (..)
 
-import Html exposing (Html)
 import List exposing (append, concatMap, map, drop, head)
 import Maybe
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-
-
-type Msg
-    = Nothing
 
 
 laneColors =
@@ -45,8 +40,6 @@ connectorWidth =
     80
 
 
-
-
 lane : Int -> Lane
 lane nr =
     { nr = nr
@@ -64,21 +57,11 @@ type alias Section =
     }
 
 
-sample_sections : List Section
-sample_sections =
-    [ { id = "A", x0 = 100, lane = lane 0, predecessor_lanes = [ lane 0, lane 1 ] }
-    , { id = "B", x0 = 100, lane = lane 1, predecessor_lanes = [ lane 1 ] }
-    , { id = "C", x0 = 100, lane = lane 2, predecessor_lanes = [ lane 2, lane 0 ] }
-    , { id = "D", x0 = 100, lane = lane 3, predecessor_lanes = [] }
-    , { id = "E", x0 = 100, lane = lane 4, predecessor_lanes = [ lane 4, lane 1 ] }
-    ]
-
-
 point : Int -> Int -> String
 point x y =
   (toString x) ++ "," ++ (toString y) ++ " "
 
-renderConnection : Section -> Lane -> List (Svg Msg)
+renderConnection : Section -> Lane -> List (Svg m)
 renderConnection section pred =
     [ polyline
         [ fill pred.color
@@ -93,20 +76,8 @@ renderConnection section pred =
         []
     ]
 
-render : Section -> List (Svg Msg)
+render : Section -> List (Svg m)
 render section =
     rect [ x (toString section.x0), y (toString section.lane.y0), width (toString sectionWidth), height (toString laneHeight), fill section.lane.color, fillOpacity "0.7" ] []
         :: text_ [ x (toString section.x0), y (toString section.lane.y1) ] [ text <| "<" ++ section.id ++ ">" ]
         :: (concatMap (renderConnection section) <| List.reverse <| section.predecessor_lanes)
-
-
-main : Html Msg
-main =
-    Html.body []
-        [ Html.text "Hello, World!"
-        , Html.br [] []
-        , svg
-            [ version "1.1", x "0", y "0", viewBox "0 0 640px 320px" ]
-          <|
-            concatMap render sample_sections
-        ]

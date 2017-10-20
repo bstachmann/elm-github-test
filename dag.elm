@@ -15,16 +15,22 @@ main : Html Msg
 main =
     let
         greeting = "Hello, WoWO"
-        g0 = Dag Set.empty Array.empty
-        g1 = node "A" [] g0
+        g0 = Dag (NewNode -1 "nix" []) Array.empty Set.empty
+        gA = node "A" [] g0
+        gB = node "B" [latest gA] gA
+        gC = node "C" [latest gB] gB
+        gD = node "D" [latest gA] gC
+        gE = node "E" [latest gC, latest gD] gD
+        gF = node "F" [latest gC] gE
     in
-      mapNodes toString g1
+      mapNodes toString gF
       |> map Html.text
+      |> List.intersperse (Html.br [] [])
       |>  Html.body []
 
 
 type Dag payload
-    = Dag (Set Int) (Array (Node payload))
+    = Dag (Node payload) (Array (Node payload)) (Set Int)
 
 
 type Node payload
@@ -32,7 +38,7 @@ type Node payload
 
 
 node : payload -> List (Node payload) -> Dag payload -> Dag payload
-node payload predecessors (Dag rootIndexes dagNodes) =
+node payload predecessors (Dag latest dagNodes rootIndexes) =
     let
         indexOfNewNode =
             length dagNodes
@@ -50,7 +56,7 @@ node payload predecessors (Dag rootIndexes dagNodes) =
         newNodes =
             push newNode dagNodes
     in
-        Dag newRootIndexes newNodes
+        Dag newNode newNodes newRootIndexes
 
 
 indexOf : Node payload -> Int
@@ -58,13 +64,15 @@ indexOf (NewNode index _ _) =
     index
 
 
-
 payload : Node payload -> payload
 payload (NewNode _ p _) =
     p
 
+latest : Dag payload -> Node payload
+latest (Dag latest _ _) =
+    latest
 
 
 mapNodes : (Node a -> b) -> Dag a -> List b
-mapNodes function (Dag rootIndexes dagNodes) =
+mapNodes function (Dag latest dagNodes rootIndexes) =
     Array.map function dagNodes |> Array.toList

@@ -1,4 +1,4 @@
-module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs)
+module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs, mapNodesByRank)
 
 import Dict exposing (Dict, get, values)
 import List exposing (foldl, map, concatMap)
@@ -81,3 +81,38 @@ foldlbreadthFirst rank function acc (NewDag getId nodes rootIds)  =
 mapNodesBfs : (Int -> (Node comparable p) -> a) -> Dag comparable p-> List a
 mapNodesBfs function dag =
     foldlbreadthFirst 0 (\r n acc -> function r n :: acc) [] dag
+
+
+foldlByRank : Int -> (Int -> (Node comparable p) -> a -> a) -> a -> Dag comparable p -> a
+foldlByRank rank function acc (NewDag getId nodes rootIds)  =
+    let
+        (rootNodes, remainingNodes) = nodes |> Dict.partition (\i v -> member i rootIds)
+
+        nextAcc = rootNodes |> Dict.values |> List.foldl (function rank) acc
+
+        nextRankNodes =
+            Dict.values rootNodes
+            |> List.concatMap successors
+
+        idOfNode node = node |> getPayload |> getId
+
+        nextRankIds =
+            nextRankNodes |> List.map idOfNode |> Set.fromList
+
+        overnextRankIds =
+            nextRankNodes
+            |> List.concatMap successors
+            |> List.map idOfNode
+            |> Set.fromList
+
+        nextRootIds = Set.diff nextRankIds overnextRankIds
+    in
+        if not (Dict.isEmpty remainingNodes) then
+            foldlByRank (rank + 1) function nextAcc (NewDag getId remainingNodes nextRootIds)
+        else
+            nextAcc
+
+
+mapNodesByRank : (Int -> (Node comparable p) -> a) -> Dag comparable p-> List a
+mapNodesByRank function dag =
+    foldlByRank 0 (\r n acc -> function r n :: acc) [] dag

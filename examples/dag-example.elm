@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Dag exposing (Dag, Node, empty, node, mapNodesBfs)
+import Dag exposing (Dag, Node, empty, node, mapNodesBfs, mapNodesByRank)
 import Html exposing (Html)
 import List exposing (intersperse, map)
 
@@ -21,7 +21,7 @@ main =
                 |> node "E" [ "C", "D" ]
                 |> node "F" [ "C" ]
     in
-        mapNodesBfs (\r n -> (toString r) ++ ": " ++ (toString n)) g
+        mapNodesByRank (\r n -> (toString r) ++ ": " ++ (toString n)) g
             |> map Html.text
             |> intersperse (Html.br [] [])
             |> Html.body []

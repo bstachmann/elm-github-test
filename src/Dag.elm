@@ -72,10 +72,10 @@ foldlbreadthFirst rank function acc (NewDag getId nodes rootIds)  =
             |> Set.fromList
     in
         if not (Dict.isEmpty remainingNodes) then
+            {-- TO DO unsauber bc nextRankRootIds arent necessarily roots --}
             foldlbreadthFirst (rank + 1) function nextAcc (NewDag getId remainingNodes nextRankRootIds)
         else
             nextAcc
-
 
 
 mapNodesBfs : (Int -> (Node comparable p) -> a) -> Dag comparable p-> List a

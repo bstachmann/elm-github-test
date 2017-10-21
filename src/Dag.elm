@@ -62,13 +62,13 @@ foldlbreadthFirst rank function acc (NewDag getId nodes rootIds)  =
     let
         (firstRankNodes, remainingNodes) = nodes |> Dict.partition (\i v -> member i rootIds)
 
-        nextAcc = firstRankNodes |> Dict.values |> List.foldl (function rank) acc
+        nextAcc = firstRankNodes |> Dict.values |> foldl (function rank) acc
 
         nextRankRootIds =
             firstRankNodes
             |> Dict.values
-            |> List.concatMap successors
-            |> List.map (\n -> getPayload n |> getId)
+            |> concatMap successors
+            |> map (\n -> getPayload n |> getId)
             |> Set.fromList
     in
         if not (Dict.isEmpty remainingNodes) then
@@ -88,21 +88,19 @@ foldlByRank rank function acc (NewDag getId nodes rootIds)  =
     let
         (rootNodes, remainingNodes) = nodes |> Dict.partition (\i v -> member i rootIds)
 
-        nextAcc = rootNodes |> Dict.values |> List.foldl (function rank) acc
+        nextAcc = rootNodes |> Dict.values |> foldl (function rank) acc
 
         nextRankNodes =
             Dict.values rootNodes
-            |> List.concatMap successors
-
-        idOfNode node = node |> getPayload |> getId
+            |> concatMap successors
 
         nextRankIds =
-            nextRankNodes |> List.map idOfNode |> Set.fromList
+            nextRankNodes |> map (getPayload >> getId) |> Set.fromList
 
         overnextRankIds =
             nextRankNodes
-            |> List.concatMap successors
-            |> List.map idOfNode
+            |> concatMap successors
+            |> map (getPayload >> getId)
             |> Set.fromList
 
         nextRootIds = Set.diff nextRankIds overnextRankIds

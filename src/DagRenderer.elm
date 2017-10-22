@@ -38,7 +38,30 @@ newRender (NewStreamLayout nrOfLanes nrOfColumns data as layout) =
 
 
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
-renderColumn (NewStreamLayout nrOfLanes nrOfColumns data) column acc =
+renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
+  let
+    columnWidth = 120
+
+    rowHeight = 40
+
+    columnHeight = rowHeight * nrOfLanes
+
+    x0 = columnWidth * column
+    y0 = 0
+  in
+    rect ( [stroke "blue", fill "none" ] |> inBox x0 y0 columnWidth columnHeight ) []
+    :: foldl (renderCell layout x0) acc (range 0 (nrOfLanes - 1))
+
+inBox : Int -> Int -> Int -> Int -> List (Attribute m) -> List (Attribute m)
+inBox x0 y0 w h acc =
+    x (toString x0)
+    :: y (toString y0)
+    :: width (toString w)
+    :: height (toString h)
+    :: acc
+
+renderCell : StreamLayout i -> Int -> LaneId -> List (Svg m) -> List (Svg m)
+renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane acc =
   let
     columnWidth = 120
     connectorWidth = 40
@@ -49,22 +72,13 @@ renderColumn (NewStreamLayout nrOfLanes nrOfColumns data) column acc =
 
     columnHeight = rowHeight * nrOfLanes
 
-    x0 = columnWidth * column
-    y0 = 0
+    x0 = column_x0
+    y0 = 0 + (rowHeight * lane)
   in
-    rect
-      ( [fill "pink" ] |> inBox x0 y0 sectionWidth columnHeight )
-      []
+    rect ( [stroke "pink", fill "none"] |> inBox x0 y0 sectionWidth laneHeight ) []
+    :: text_ [ x (toString x0), y (toString (y0 + 8)) ] [ text <| "<" ++ (toString lane) ++ ">" ]
     :: acc
 
-
-inBox : Int -> Int -> Int -> Int -> List (Attribute m) -> List (Attribute m)
-inBox x0 y0 w h acc =
-    x (toString x0)
-    :: y (toString y0)
-    :: width (toString w)
-    :: height (toString h)
-    :: acc
 
 
 laneColors =

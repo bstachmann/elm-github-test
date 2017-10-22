@@ -48,12 +48,14 @@ renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
 
     x0 = columnWidth * column
     y0 = 0
+
+    bounds = (x0, y0, columnWidth, columnHeight)
   in
-    rect ( [stroke "blue", fill "none" ] |> inBox x0 y0 columnWidth columnHeight ) []
+    rect ( [stroke "blue", fill "none" ] |> inBox bounds ) []
     :: foldl (renderCell layout x0) acc (range 0 (nrOfLanes - 1))
 
-inBox : Int -> Int -> Int -> Int -> List (Attribute m) -> List (Attribute m)
-inBox x0 y0 w h acc =
+inBox : (Int, Int, Int, Int) -> List (Attribute m) -> List (Attribute m)
+inBox (x0, y0, w, h) acc =
     x (toString x0)
     :: y (toString y0)
     :: width (toString w)
@@ -74,8 +76,10 @@ renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane
 
     x0 = column_x0
     y0 = 0 + (rowHeight * lane)
+
+    bounds = (x0, y0, sectionWidth, laneHeight)
   in
-    rect ( [stroke "pink", fill "none"] |> inBox x0 y0 sectionWidth laneHeight ) []
+    rect ( [stroke "pink", fill "none"] |> inBox bounds ) []
     :: text_ [ x (toString x0), y (toString (y0 + 8)) ] [ text <| "<" ++ (toString lane) ++ ">" ]
     :: acc
 

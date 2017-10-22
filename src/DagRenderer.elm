@@ -8,6 +8,7 @@ import Dict exposing (Dict)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 
+{-- Types --}
 
 type Cell i
     = NewCell i (List Int)
@@ -25,20 +26,7 @@ type alias LaneId =
     Int
 
 
-config =
-    { columnWidth = 120
-    , connectorWidth = 40
-    , rowHeight = 50
-    , laneHeight = 30
-    , diagnosticsFor =
-        Set.fromList
-            [ "debug"
-
-            -- , "column"
-            -- , "section"
-            -- , "cell"
-            ]
-    }
+{-- Building layouts --}
 
 
 empty : Int -> StreamLayout i
@@ -66,6 +54,32 @@ appendCell lane i successors (NewStreamLayout nrOfLanes nrOfColumns data) =
     in
         NewStreamLayout nrOfLanes nrOfColumns nextData
 
+{-- Rendering to SVG --}
+
+config =
+    { columnWidth = 120
+    , connectorWidth = 40
+    , rowHeight = 50
+    , laneHeight = 30
+    , diagnosticsFor =
+        Set.fromList
+            [ "debug"
+
+            -- , "column"
+            -- , "section"
+            -- , "cell"
+            ]
+
+    , laneColors =
+        [ "#FFBBBB"
+        , "#BBFFBB"
+        , "#BBBBFF"
+        , "#BBFFFF"
+        , "#FFFFBB"
+        , "#FFBBFF"
+        ]
+    }
+
 
 newRender : StreamLayout i -> List (Svg m)
 newRender ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) =
@@ -83,24 +97,6 @@ renderColumn ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column acc
             |> diagnostic "column" column "green" ( x0, 0, config.columnWidth, nrOfLanes * config.rowHeight )
             |> (\acc -> foldl (renderSection layout column) acc (range 0 (nrOfLanes - 1)))
 
-
-diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> List (Svg m)
-diagnostic t msg color_ (( x0, y0, _, _ ) as bounds) acc =
-    if Set.member t config.diagnosticsFor then
-        rect ([ stroke color_, strokeOpacity "0.5", fill "none" ] |> inBox bounds) []
-            :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_, fillOpacity "0.5" ] [ text (toString msg) ]
-            :: acc
-    else
-        acc
-
-
-inBox : ( Int, Int, Int, Int ) -> List (Attribute m) -> List (Attribute m)
-inBox ( x0, y0, w, h ) acc =
-    x (toString x0)
-        :: y (toString y0)
-        :: width (toString w)
-        :: height (toString h)
-        :: acc
 
 
 renderSection : StreamLayout i -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
@@ -160,10 +156,12 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
             []
             :: acc
 
+{-- Implementation helpers --}
+
 
 colorForLane : LaneId -> String
 colorForLane lane =
-    (drop (lane % 6) laneColors |> head |> Maybe.withDefault "black")
+    (drop (lane % 6) config.laneColors |> head |> Maybe.withDefault "black")
 
 
 laneColors =
@@ -174,6 +172,28 @@ laneColors =
     , "#FFFFBB"
     , "#FFBBFF"
     ]
+
+
+diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> List (Svg m)
+diagnostic t msg color_ (( x0, y0, _, _ ) as bounds) acc =
+    if Set.member t config.diagnosticsFor then
+        rect ([ stroke color_, strokeOpacity "0.5", fill "none" ] |> inBox bounds) []
+            :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_, fillOpacity "0.5" ] [ text (toString msg) ]
+            :: acc
+    else
+        acc
+
+
+inBox : ( Int, Int, Int, Int ) -> List (Attribute m) -> List (Attribute m)
+inBox ( x0, y0, w, h ) acc =
+    x (toString x0)
+        :: y (toString y0)
+        :: width (toString w)
+        :: height (toString h)
+        :: acc
+
+
+{-- Deprecated Stuff --}
 
 
 type alias Lane =

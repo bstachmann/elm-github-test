@@ -51,8 +51,14 @@ renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
 
     bounds = (x0, y0, columnWidth, columnHeight)
   in
-    rect ( [stroke "blue", fill "none" ] |> inBox bounds ) []
-    :: foldl (renderCell layout x0) acc (range 0 (nrOfLanes - 1))
+    foldl (renderCell layout x0) acc (range 0 (nrOfLanes - 1))
+    |> diagnostic "column" "green" bounds
+
+diagnostic : a -> String -> (Int, Int, Int, Int) -> List (Svg m) -> List (Svg m)
+diagnostic a color ((x0, y0, _, _) as bounds) acc =
+  rect ( [stroke color, fill "none" ] |> inBox bounds ) []
+  :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), stroke color ] [ text <| toString a ]
+  :: acc
 
 inBox : (Int, Int, Int, Int) -> List (Attribute m) -> List (Attribute m)
 inBox (x0, y0, w, h) acc =
@@ -79,9 +85,8 @@ renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane
 
     bounds = (x0, y0, sectionWidth, laneHeight)
   in
-    rect ( [stroke "pink", fill "none"] |> inBox bounds ) []
-    :: text_ [ x (toString x0), y (toString (y0 + 8)) ] [ text <| "<" ++ (toString lane) ++ ">" ]
-    :: acc
+    acc
+    |> diagnostic "section" "red" bounds
 
 
 

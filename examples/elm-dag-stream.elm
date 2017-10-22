@@ -13,13 +13,19 @@ type Msg
 
 sample : DagRenderer.StreamLayout String
 sample =
-    empty 7
+    empty 5
     |> appendColumn
+    |> appendCell 0 "A"
+    |> appendCell 1 "B"
+    |> appendCell 2 "C"
+    |> appendCell 3 "D"
+    |> appendCell 4 "F"
     |> appendColumn
+    |> appendCell 1 "B"
+    |> appendCell 3 "F"
     |> appendColumn
-    |> appendColumn
-
-  
+    |> appendCell 1 "B"
+    |> appendCell 4 "G"
 
 
 main : Html Msg

@@ -66,8 +66,9 @@ renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
   let
     x0 = config.columnWidth * column
   in
-    foldl (renderSection layout column) acc (range 0 (nrOfLanes - 1))
+    acc
     |> diagnostic "column" column "green" (x0, 0, config.columnWidth, nrOfLanes * config.rowHeight)
+    |> (\acc -> foldl (renderSection layout column) acc (range 0 (nrOfLanes - 1)))
 
 diagnostic : String -> e -> String -> (Int, Int, Int, Int) -> List (Svg m) -> List (Svg m)
 diagnostic t msg color_ ((x0, y0, _, _) as bounds) acc =

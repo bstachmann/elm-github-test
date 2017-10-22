@@ -47,11 +47,11 @@ appendColumn (NewStreamLayout nrOfLanes nrOfColumns data) =
     NewStreamLayout nrOfLanes (nrOfColumns + 1) data
 
 
-appendCell :  LaneId -> i -> StreamLayout i  -> StreamLayout i
-appendCell lane i (NewStreamLayout nrOfLanes nrOfColumns data)  =
+appendCell :  LaneId -> i -> List Int -> StreamLayout i  -> StreamLayout i
+appendCell lane i successors (NewStreamLayout nrOfLanes nrOfColumns data)  =
     let
         lastColumn = nrOfColumns - 1
-        nextData = Dict.insert (lane + nrOfLanes * lastColumn) (NewCell i []) data
+        nextData = Dict.insert (lane + nrOfLanes * lastColumn) (NewCell i successors) data
     in
         NewStreamLayout nrOfLanes nrOfColumns nextData
 
@@ -96,20 +96,34 @@ renderSection (NewStreamLayout nrOfLanes nrOfColumns data as layout) column lane
     m = Dict.get index data
   in
     m
-    |> Maybe.map (\(NewCell i _) -> renderCell layout x_ y_ i acc )
+    |> Maybe.map (\c -> renderCell layout x_ y_ c acc )
     |> Maybe.withDefault acc
     |> diagnostic "section" lane "blue" (x_, y_, config.columnWidth, config.laneHeight)
 
 
-renderCell : StreamLayout i -> Int -> Int -> i -> List (Svg m) -> List (Svg m)
-renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) section_x section_y i acc =
+
+renderCell : StreamLayout i -> Int -> Int -> Cell i -> List (Svg m) -> List (Svg m)
+renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) section_x section_y (NewCell i successors) acc =
     let
         bounds = (section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight)
     in
         rect ( [fill "pink" ] |> inBox bounds ) []
         :: text_ [ x (toString (section_x + 4)), y (toString (section_y + 14)), fill "blue"] [ text <| toString i ]
         :: acc
+        |> (\acc -> List.foldl (newRenderConnections layout section_x section_y) acc successors)
         |> diagnostic "cell" lane "red" bounds
+
+newRenderConnections : StreamLayout i -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
+newRenderConnections (NewStreamLayout nrOfLanes nrOfColumns data as layout) section_x section_y successorLane acc =
+    let
+        bounds =
+          ( section_x + config.columnWidth - config.connectorWidth
+          , successorLane * config.rowHeight
+          , config.connectorWidth
+          , config.laneHeight)
+    in
+        rect ( [fill "blue" ] |> inBox bounds ) []
+        :: acc
 
 
 

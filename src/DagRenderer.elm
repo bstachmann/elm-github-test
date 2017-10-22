@@ -18,6 +18,13 @@ type alias ColumnId = Int
 
 type alias LaneId = Int
 
+config =
+  { columnWidth = 120
+    , connectorWidth = 40
+    , rowHeight = 50
+    , laneHeight = 30
+  }
+
 
 empty : Int -> StreamLayout i
 empty nrOfLanes =
@@ -40,16 +47,13 @@ newRender (NewStreamLayout nrOfLanes nrOfColumns data as layout) =
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
 renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
   let
-    columnWidth = 120
 
-    rowHeight = 40
+    columnHeight = config.rowHeight * nrOfLanes
 
-    columnHeight = rowHeight * nrOfLanes
-
-    x0 = columnWidth * column
+    x0 = config.columnWidth * column
     y0 = 0
 
-    bounds = (x0, y0, columnWidth, columnHeight)
+    bounds = (x0, y0, config.columnWidth, columnHeight)
   in
     foldl (renderCell layout x0) acc (range 0 (nrOfLanes - 1))
     |> diagnostic "column" "green" bounds
@@ -71,19 +75,10 @@ inBox (x0, y0, w, h) acc =
 renderCell : StreamLayout i -> Int -> LaneId -> List (Svg m) -> List (Svg m)
 renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane acc =
   let
-    columnWidth = 120
-    connectorWidth = 40
-    sectionWidth = columnWidth - connectorWidth
-
-    rowHeight = 40
-    laneHeight = 30
-
-    columnHeight = rowHeight * nrOfLanes
-
     x0 = column_x0
-    y0 = 0 + (rowHeight * lane)
+    y0 = 0 + (config.rowHeight * lane)
 
-    bounds = (x0, y0, sectionWidth, laneHeight)
+    bounds = (x0, y0, config.columnWidth , laneHeight)
   in
     acc
     |> diagnostic "section" "red" bounds

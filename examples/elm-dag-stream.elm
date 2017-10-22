@@ -16,13 +16,13 @@ sample =
     empty 5
     |> appendColumn
     |> appendCell 0 "A" [1]
-    |> appendCell 1 "B" []
+    |> appendCell 1 "B" [1]
     |> appendCell 2 "C" []
-    |> appendCell 3 "D" []
+    |> appendCell 3 "D" [3, 4]
     |> appendCell 4 "F" []
     |> appendColumn
     |> appendCell 1 "B" []
-    |> appendCell 3 "F" []
+    |> appendCell 3 "F" [1, 4]
     |> appendColumn
     |> appendCell 1 "B" []
     |> appendCell 4 "G" []

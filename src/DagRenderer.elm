@@ -122,7 +122,20 @@ newRenderConnections (NewStreamLayout nrOfLanes nrOfColumns data as layout) sect
           , config.connectorWidth
           , config.laneHeight)
     in
-        rect ( [fill "blue" ] |> inBox bounds ) []
+        rect
+            ( [fill "blue" ] |> inBox bounds )
+            []
+        :: polyline
+            [ fill "purple"
+            , fillOpacity "0.7"
+            , points
+                ( (point (section_x + config.columnWidth - config.connectorWidth) (section_y))
+                ++ (point (section_x + config.columnWidth)  (successorLane * config.rowHeight))
+                ++ (point (section_x + config.columnWidth) (successorLane * config.rowHeight + config.laneHeight))
+                ++ (point (section_x + config.columnWidth - config.connectorWidth) (section_y + config.laneHeight))
+                )
+            ]
+            []
         :: acc
 
 

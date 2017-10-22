@@ -1,15 +1,14 @@
 module Main exposing (main)
 
-
 import Html exposing (Html)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-
-
 import DagRenderer exposing (..)
+
 
 type Msg
     = Nothing
+
 
 sample_sections : List Section
 sample_sections =

@@ -1,9 +1,70 @@
 module DagRenderer exposing (..)
 
-import List exposing (append, concatMap, map, drop, head)
+import List exposing (append, concatMap, map, drop, head, foldl, range)
+import Array exposing (Array)
 import Maybe
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+
+
+type Cell i = NewCell i (Array Int)
+
+
+type StreamLayout i = NewStreamLayout Int Int (Array (Cell i))
+
+
+type alias ColumnId = Int
+
+
+type alias LaneId = Int
+
+
+empty : Int -> StreamLayout i
+empty nrOfLanes =
+    let
+        nrOfColumns = 0
+    in
+        NewStreamLayout nrOfLanes nrOfColumns Array.empty
+
+appendColumn :  StreamLayout i  -> StreamLayout i
+appendColumn (NewStreamLayout nrOfLanes nrOfColumns data) =
+    NewStreamLayout nrOfLanes (nrOfColumns + 1) data
+
+
+newRender : StreamLayout i  -> List (Svg m)
+newRender (NewStreamLayout nrOfLanes nrOfColumns data as layout) =
+    range 0 (nrOfColumns - 1)
+    |> List.foldl (renderColumn layout) []
+
+
+renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
+renderColumn (NewStreamLayout nrOfLanes nrOfColumns data) column acc =
+  let
+    columnWidth = 120
+    connectorWidth = 40
+    sectionWidth = columnWidth - connectorWidth
+
+    rowHeight = 40
+    laneHeight = 30
+
+    columnHeight = rowHeight * nrOfLanes
+
+    x0 = columnWidth * column
+    y0 = 0
+  in
+    rect
+      ( [fill "pink" ] |> inBox x0 y0 sectionWidth columnHeight )
+      []
+    :: acc
+
+
+inBox : Int -> Int -> Int -> Int -> List (Attribute m) -> List (Attribute m)
+inBox x0 y0 w h acc =
+    x (toString x0)
+    :: y (toString y0)
+    :: width (toString w)
+    :: height (toString h)
+    :: acc
 
 
 laneColors =

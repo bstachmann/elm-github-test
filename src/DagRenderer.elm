@@ -2,6 +2,7 @@ module DagRenderer exposing (..)
 
 import List exposing (append, concatMap, map, drop, head, foldl, range)
 import Array exposing (Array)
+import Set
 import Maybe
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -23,6 +24,13 @@ config =
     , connectorWidth = 40
     , rowHeight = 50
     , laneHeight = 30
+    , diagnosticsFor =
+        Set.fromList
+            [ "debug"
+            --, "column"
+            --, "section"
+            , "cell"
+            ]
   }
 
 
@@ -53,11 +61,14 @@ renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
    layout x0) acc (range 0 (nrOfLanes - 1))
     |> diagnostic "column" "green" (x0, 0, config.columnWidth, nrOfLanes * config.rowHeight)
 
-diagnostic : a -> String -> (Int, Int, Int, Int) -> List (Svg m) -> List (Svg m)
+diagnostic : String -> String -> (Int, Int, Int, Int) -> List (Svg m) -> List (Svg m)
 diagnostic a color_ ((x0, y0, _, _) as bounds) acc =
-  rect ( [stroke color_, fill "none" ] |> inBox bounds ) []
-  :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_ ] [ text <| toString a ]
-  :: acc
+  if Set.member a config.diagnosticsFor then
+      rect ( [stroke color_, strokeOpacity "0.5",  fill "none" ] |> inBox bounds ) []
+      :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_ , fillOpacity "0.5"] [ text a ]
+      :: acc
+  else
+      acc
 
 inBox : (Int, Int, Int, Int) -> List (Attribute m) -> List (Attribute m)
 inBox (x0, y0, w, h) acc =
@@ -75,13 +86,13 @@ renderSection (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x la
   in
     acc
     |> renderCell layout x_ y_
-    |> diagnostic "section" "red" (x_, y_, config.columnWidth, config.laneHeight)
+    |> diagnostic "section" "blue" (x_, y_, config.columnWidth, config.laneHeight)
 
 
 renderCell : StreamLayout i -> Int -> Int -> List (Svg m) -> List (Svg m)
 renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) section_x section_y acc =
     acc
-    |> diagnostic "cell" "yellow" (section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight)
+    |> diagnostic "cell" "red" (section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight)
 
 
 

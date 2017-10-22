@@ -24,14 +24,21 @@ sample =
     |> appendCell 1 "B" [1]
     |> appendCell 3 "F" [1, 4]
     |> appendColumn
-    |> appendCell 1 "B" []
-    |> appendCell 4 "G" []
+    |> appendCell 1 "B" [1]
+    |> appendCell 4 "G" [4]
+    |> appendColumn
+    |> appendCell 1 "H" [4]
+    |> appendCell 4 "I" [4]
+    |> appendColumn
+    |> appendCell 4 "J" []
 
 
 main : Html Msg
 main =
     Html.body []
-        [ Html.text <| "Hello Stream Graph!" ++ (toString sample)
+        [ Html.text <| "Hello Stream Graph!"
+        , Html.br [] []
+        -- , Html.text <| "Layout: " ++ (toString sample)
         , Html.br [] []
         , svg
             [ version "1.1", x "0", y "0", width "1280px", height "1024px", viewBox "0 0 1280px 1024px" ]

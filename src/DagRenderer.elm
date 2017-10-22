@@ -28,9 +28,9 @@ config =
     , diagnosticsFor =
         Set.fromList
             [ "debug"
-            , "column"
+            -- , "column"
             -- , "section"
-            --, "cell"
+            -- , "cell"
             ]
   }
 
@@ -107,7 +107,7 @@ renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) section_x sect
     let
         bounds = (section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight)
     in
-        rect ( [fill "pink" ] |> inBox bounds ) []
+        rect ( [fill  <| colorForLane <| section_y // config.rowHeight, fillOpacity "0.6"] |> inBox bounds ) []
         :: text_ [ x (toString (section_x + 4)), y (toString (section_y + 14)), fill "blue"] [ text <| toString i ]
         :: acc
         |> (\acc -> List.foldl (newRenderConnections layout section_x section_y) acc successors)
@@ -123,8 +123,8 @@ newRenderConnections (NewStreamLayout nrOfLanes nrOfColumns data as layout) sect
           , config.laneHeight)
     in
         polyline
-            [ fill "purple"
-            , fillOpacity "0.7"
+            [ fill (colorForLane successorLane)
+            , fillOpacity "0.6"
             , points
                 ( (point (section_x + config.columnWidth - config.connectorWidth) (section_y))
                 ++ (point (section_x + config.columnWidth)  (successorLane * config.rowHeight))
@@ -135,15 +135,17 @@ newRenderConnections (NewStreamLayout nrOfLanes nrOfColumns data as layout) sect
             []
         :: acc
 
-
+colorForLane : LaneId -> String
+colorForLane lane =
+    (drop (lane % 6) laneColors |> head |> Maybe.withDefault "black")
 
 laneColors =
-    [ "#FFDDDD"
-    , "#DDFFDD"
-    , "#DDDDFF"
-    , "#DDFFFF"
-    , "#FFFFDD"
-    , "#FFDDFF"
+    [ "#FFBBBB"
+    , "#BBFFBB"
+    , "#BBBBFF"
+    , "#BBFFFF"
+    , "#FFFFBB"
+    , "#FFBBFF"
     ]
 
 

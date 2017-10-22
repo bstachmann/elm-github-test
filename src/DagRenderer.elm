@@ -47,21 +47,16 @@ newRender (NewStreamLayout nrOfLanes nrOfColumns data as layout) =
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
 renderColumn (NewStreamLayout nrOfLanes nrOfColumns data as layout) column acc =
   let
-
-    columnHeight = config.rowHeight * nrOfLanes
-
     x0 = config.columnWidth * column
-    y0 = 0
-
-    bounds = (x0, y0, config.columnWidth, columnHeight)
   in
-    foldl (renderCell layout x0) acc (range 0 (nrOfLanes - 1))
-    |> diagnostic "column" "green" bounds
+    foldl (renderSection
+   layout x0) acc (range 0 (nrOfLanes - 1))
+    |> diagnostic "column" "green" (x0, 0, config.columnWidth, nrOfLanes * config.rowHeight)
 
 diagnostic : a -> String -> (Int, Int, Int, Int) -> List (Svg m) -> List (Svg m)
-diagnostic a color ((x0, y0, _, _) as bounds) acc =
-  rect ( [stroke color, fill "none" ] |> inBox bounds ) []
-  :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), stroke color ] [ text <| toString a ]
+diagnostic a color_ ((x0, y0, _, _) as bounds) acc =
+  rect ( [stroke color_, fill "none" ] |> inBox bounds ) []
+  :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_ ] [ text <| toString a ]
   :: acc
 
 inBox : (Int, Int, Int, Int) -> List (Attribute m) -> List (Attribute m)
@@ -72,16 +67,14 @@ inBox (x0, y0, w, h) acc =
     :: height (toString h)
     :: acc
 
-renderCell : StreamLayout i -> Int -> LaneId -> List (Svg m) -> List (Svg m)
-renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane acc =
+renderSection : StreamLayout i -> Int -> LaneId -> List (Svg m) -> List (Svg m)
+renderSection (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane acc =
   let
     x0 = column_x0
     y0 = 0 + (config.rowHeight * lane)
 
-    bounds = (x0, y0, config.columnWidth , laneHeight)
   in
-    acc
-    |> diagnostic "section" "red" bounds
+    acc |> diagnostic "section" "red" (x0, y0, config.columnWidth, config.laneHeight)
 
 
 

@@ -68,13 +68,21 @@ inBox (x0, y0, w, h) acc =
     :: acc
 
 renderSection : StreamLayout i -> Int -> LaneId -> List (Svg m) -> List (Svg m)
-renderSection (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x0 lane acc =
+renderSection (NewStreamLayout nrOfLanes nrOfColumns data as layout) column_x lane acc =
   let
-    x0 = column_x0
-    y0 = 0 + (config.rowHeight * lane)
-
+    x_ = column_x
+    y_ = 0 + (config.rowHeight * lane)
   in
-    acc |> diagnostic "section" "red" (x0, y0, config.columnWidth, config.laneHeight)
+    acc
+    |> renderCell layout x_ y_
+    |> diagnostic "section" "red" (x_, y_, config.columnWidth, config.laneHeight)
+
+
+renderCell : StreamLayout i -> Int -> Int -> List (Svg m) -> List (Svg m)
+renderCell (NewStreamLayout nrOfLanes nrOfColumns data as layout) section_x section_y acc =
+    acc
+    |> diagnostic "cell" "yellow" (section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight)
+
 
 
 

@@ -17,11 +17,11 @@ sample =
     |> appendColumn
     |> appendCell 0 "A" [1]
     |> appendCell 1 "B" [1]
-    |> appendCell 2 "C" []
-    |> appendCell 3 "D" [3, 4]
-    |> appendCell 4 "F" []
+    |> appendCell 2 "C" [1]
+    |> appendCell 3 "D" [3, 1]
+    |> appendCell 4 "F" [3]
     |> appendColumn
-    |> appendCell 1 "B" []
+    |> appendCell 1 "B" [1]
     |> appendCell 3 "F" [1, 4]
     |> appendColumn
     |> appendCell 1 "B" []

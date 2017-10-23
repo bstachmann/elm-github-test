@@ -153,23 +153,30 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
         yMiddleTop  =  (yLeftTop + yRightTop) // 2
         yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
     in
-        polyline
+        Svg.path
             [ fill (colorForLane successorLane)
             , fillOpacity "0.6"
-            , points
-                ((point xLeft yLeftTop)
-                -- Move right
+            , d
+                ( -- Move right
+                  "M "
+                ++ (point xLeft yLeftTop)
+                ++ "Q "
                 ++ (point xA yLeftTop)
-                ++(point xB yMiddleTop)
+                ++ (point xB yMiddleTop)
+                ++ "Q "
                 ++ (point xC yRightTop)
                 ++ (point xRight yRightTop)
                 -- Move down
+                ++ "L "
                 ++ (point xRight yRightBottom)
                 -- Move left
+                ++ "Q "
                 ++ (point xC yRightBottom)
                 ++ (point xB yMiddleBottom)
+                ++ "Q "
                 ++ (point xA yLeftBottom)
                 ++ (point xLeft yLeftBottom)
+                ++ "Z"
                 )
             ]
             []
@@ -257,7 +264,7 @@ type alias Section =
 
 point : Int -> Int -> String
 point x y =
-    (toString x) ++ "," ++ (toString y) ++ " "
+    (toString x) ++ " " ++ (toString y) ++ " "
 
 
 renderConnection : Section -> Lane -> List (Svg m)

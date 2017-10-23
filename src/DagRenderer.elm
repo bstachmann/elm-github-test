@@ -137,21 +137,17 @@ renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) section_x se
 newRenderConnections : StreamLayout i -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
 newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) section_x section_y successorLane acc =
     let
-        bounds =
-            ( section_x + config.columnWidth - config.connectorWidth
-            , successorLane * config.rowHeight
-            , config.connectorWidth
-            , config.laneHeight
-            )
+        xRight = section_x + config.columnWidth
+        xLeft = xRight - config.connectorWidth
     in
         polyline
             [ fill (colorForLane successorLane)
             , fillOpacity "0.6"
             , points
-                ((point (section_x + config.columnWidth - config.connectorWidth) (section_y))
-                    ++ (point (section_x + config.columnWidth) (successorLane * config.rowHeight))
-                    ++ (point (section_x + config.columnWidth) (successorLane * config.rowHeight + config.laneHeight))
-                    ++ (point (section_x + config.columnWidth - config.connectorWidth) (section_y + config.laneHeight))
+                ((point xLeft (section_y))
+                    ++ (point xRight (successorLane * config.rowHeight))
+                    ++ (point xRight (successorLane * config.rowHeight + config.laneHeight))
+                    ++ (point xLeft (section_y + config.laneHeight))
                 )
             ]
             []

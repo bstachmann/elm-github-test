@@ -82,10 +82,27 @@ config =
     }
 
 
+{--
+<defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
+    </linearGradient>
+  </defs>--}
+
 newRender : StreamLayout i -> List (Svg m)
 newRender ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) =
-    range 0 (nrOfColumns - 1)
+    defs
+      []
+      [ linearGradient
+          [ id "grad1", x1 "0%", y1 "0%", x2 "100%", y2 "100%" ]
+          [ stop [offset "0%", Svg.Attributes.style "stop-color:rgb(255,255,0);stop-opacity:1"] []
+          ,  stop [offset "100%", Svg.Attributes.style "stop-color:rgb(255,0,0);stop-opacity:1"] []
+          ]
+      ]
+    :: (range 0 (nrOfColumns - 1)
         |> List.foldl (renderColumn layout) []
+        )
 
 
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
@@ -154,7 +171,8 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
         yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
     in
         Svg.path
-            [ fill (colorForLane successorLane)
+            [ fill "url(#grad1)"
+            -- fill (colorForLane successorLane)
             , fillOpacity "0.6"
             , d
                 ( -- Move right

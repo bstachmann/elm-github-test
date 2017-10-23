@@ -57,8 +57,8 @@ appendCell lane i successors (NewStreamLayout nrOfLanes nrOfColumns data) =
 {-- Rendering to SVG --}
 
 config =
-    { columnWidth = 120
-    , connectorWidth = 40
+    { columnWidth =120
+    , connectorWidth = 80
     , rowHeight = 50
     , laneHeight = 30
     , diagnosticsFor =

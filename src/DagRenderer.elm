@@ -139,15 +139,21 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
     let
         xRight = section_x + config.columnWidth
         xLeft = xRight - config.connectorWidth
+
+        yLeftTop = section_y
+        yLeftBottom = yLeftTop + config.laneHeight
+
+        yRightTop = successorLane * config.rowHeight
+        yRightBottom = yRightTop + config.laneHeight
     in
         polyline
             [ fill (colorForLane successorLane)
             , fillOpacity "0.6"
             , points
-                ((point xLeft (section_y))
-                    ++ (point xRight (successorLane * config.rowHeight))
-                    ++ (point xRight (successorLane * config.rowHeight + config.laneHeight))
-                    ++ (point xLeft (section_y + config.laneHeight))
+                ((point xLeft yLeftTop)
+                    ++ (point xRight yRightTop)
+                    ++ (point xRight yRightBottom)
+                    ++ (point xLeft yLeftBottom)
                 )
             ]
             []

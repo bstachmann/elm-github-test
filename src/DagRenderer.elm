@@ -140,8 +140,15 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
         xRight = section_x + config.columnWidth
         xLeft = xRight - config.connectorWidth
 
+        xA = xRight + ((config.connectorWidth * 1) // 4)
+        xB = xRight + ((config.connectorWidth * 2) // 4)
+        xC = xRight + ((config.connectorWidth * 3) // 4)
+
         yLeftTop = section_y
         yLeftBottom = yLeftTop + config.laneHeight
+
+        yMiddleTop  =  (yLeftTop + yRightTop) // 2
+        yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
 
         yRightTop = successorLane * config.rowHeight
         yRightBottom = yRightTop + config.laneHeight
@@ -151,9 +158,18 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
             , fillOpacity "0.6"
             , points
                 ((point xLeft yLeftTop)
-                    ++ (point xRight yRightTop)
-                    ++ (point xRight yRightBottom)
-                    ++ (point xLeft yLeftBottom)
+                -- Move right
+                ++ (point xA yLeftTop)
+                ++ (point xB yMiddleTop)
+                ++ (point xC yRightTop)
+                ++ (point xRight yRightTop)
+                -- Move down
+                ++ (point xRight yRightBottom)
+                -- Move left
+                ++ (point xC yRightBottom)
+                ++ (point xB yMiddleBottom)
+                ++ (point xA yLeftBottom)
+                ++ (point xLeft yLeftBottom)
                 )
             ]
             []

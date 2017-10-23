@@ -140,18 +140,18 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
         xRight = section_x + config.columnWidth
         xLeft = xRight - config.connectorWidth
 
-        xA = xRight + ((config.connectorWidth * 1) // 4)
-        xB = xRight + ((config.connectorWidth * 2) // 4)
-        xC = xRight + ((config.connectorWidth * 3) // 4)
+        xA = xLeft + ((config.connectorWidth * 1) // 4)
+        xB = xLeft + ((config.connectorWidth * 2) // 4)
+        xC = xLeft + ((config.connectorWidth * 3) // 4)
 
         yLeftTop = section_y
         yLeftBottom = yLeftTop + config.laneHeight
 
-        yMiddleTop  =  (yLeftTop + yRightTop) // 2
-        yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
-
         yRightTop = successorLane * config.rowHeight
         yRightBottom = yRightTop + config.laneHeight
+
+        yMiddleTop  =  (yLeftTop + yRightTop) // 2
+        yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
     in
         polyline
             [ fill (colorForLane successorLane)
@@ -160,7 +160,7 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
                 ((point xLeft yLeftTop)
                 -- Move right
                 ++ (point xA yLeftTop)
-                ++ (point xB yMiddleTop)
+                ++(point xB yMiddleTop)
                 ++ (point xC yRightTop)
                 ++ (point xRight yRightTop)
                 -- Move down

@@ -71,13 +71,14 @@ config =
             ]
 
     , laneColors =
-        [ "#FFBBBB"
-        , "#BBFFBB"
-        , "#BBBBFF"
-        , "#BBFFFF"
-        , "#FFFFBB"
-        , "#FFBBFF"
-        ]
+          [ "#FFBBBB"
+          , "#BBFFBB"
+          , "#BBBBFF"
+          , "#BBFFFF"
+          , "#FFFFBB"
+          , "#FFBBFF"
+          ]
+          |> Array.fromList
     }
 
 
@@ -161,17 +162,7 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
 
 colorForLane : LaneId -> String
 colorForLane lane =
-    (drop (lane % 6) config.laneColors |> head |> Maybe.withDefault "black")
-
-
-laneColors =
-    [ "#FFBBBB"
-    , "#BBFFBB"
-    , "#BBBBFF"
-    , "#BBFFFF"
-    , "#FFFFBB"
-    , "#FFBBFF"
-    ]
+    Array.get (lane % (Array.length config.laneColors)) config.laneColors |> Maybe.withDefault "blue"
 
 
 diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> List (Svg m)
@@ -194,6 +185,15 @@ inBox ( x0, y0, w, h ) acc =
 
 
 {-- Deprecated Stuff --}
+
+laneColors =
+        [ "#FFBBBB"
+        , "#BBFFBB"
+        , "#BBBBFF"
+        , "#BBFFFF"
+        , "#FFFFBB"
+        , "#FFBBFF"
+        ]
 
 
 type alias Lane =

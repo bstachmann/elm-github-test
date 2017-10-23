@@ -12,13 +12,15 @@ type Msg
 
 sample : DagRenderer.StreamLayout String
 sample =
-    empty 5
+    empty 7
         |> appendColumn
         |> appendCell 0 "A" [ 1 ]
         |> appendCell 1 "B" [ 1 ]
         |> appendCell 2 "C" [ 1 ]
         |> appendCell 3 "D" [ 3, 1 ]
         |> appendCell 4 "F" [ 3 ]
+        |> appendCell 5 "K" []
+        |> appendCell 6 "L" []
         |> appendColumn
         |> appendCell 1 "B" [ 1 ]
         |> appendCell 3 "F" [ 1, 4 ]
@@ -39,9 +41,10 @@ main =
         , Html.br [] []
 
         -- , Html.text <| "Layout: " ++ (toString sample)
+        , Html.text <| "config: " ++ (toString config)
         , Html.br [] []
         , svg
-            [ version "1.1", x "0", y "0", width "1280px", height "1024px", viewBox "0 0 1280px 1024px" ]
+            [ version "1.1", x "0", y "0", width "1280px", height "2024px", viewBox "0 0 1280px 2024px" ]
           <|
             DagRenderer.newRender sample
         ]

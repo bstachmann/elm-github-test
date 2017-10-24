@@ -169,9 +169,17 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
 
         yMiddleTop  =  (yLeftTop + yRightTop) // 2
         yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
+
+        laneLeft = section_y // config.rowHeight
+        laneRight = successorLane
+        colorLeft = colorForLane <| section_y // config.rowHeight
+        colorRight = colorForLane laneRight
+
+        gradientId = "gr" ++ (toString laneLeft) ++ "_" ++ (toString laneRight)
     in
-        Svg.path
-            [ fill "url(#grad1)"
+        defGradient gradientId colorLeft colorRight
+        :: Svg.path
+            [ fill <| "url(#" ++ gradientId ++ ")"
             -- fill (colorForLane successorLane)
             , fillOpacity "0.6"
             , d
@@ -201,6 +209,18 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
             :: acc
 
 {-- Implementation helpers --}
+
+defGradient : String -> String -> String -> Svg m
+defGradient theId col1 col2 =
+    defs
+      []
+      [ linearGradient
+          [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "100%" ]
+          [ stop [offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1"] []
+          ,  stop [offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1"] []
+          ]
+      ]
+
 
 
 colorForLane : LaneId -> String

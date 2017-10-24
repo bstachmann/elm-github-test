@@ -144,7 +144,7 @@ renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) section_x se
         bounds =
             ( section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight )
     in
-        rect ([ fill <| colorForLane <| section_y // config.rowHeight, fillOpacity "0.6" ] |> inBox bounds) []
+        rect ([ fill <| colorForLane <| section_y // config.rowHeight, fillOpacity "1.0" ] |> inBox bounds) []
             :: text_ [ x (toString (section_x + 4)), y (toString (section_y + 14)), fill "blue" ] [ text <| toString i ]
             :: acc
             |> (\acc -> List.foldl (newRenderConnections layout section_x section_y) acc successors)
@@ -180,8 +180,6 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) se
         defGradient gradientId colorLeft colorRight
         :: Svg.path
             [ fill <| "url(#" ++ gradientId ++ ")"
-            -- fill (colorForLane successorLane)
-            , fillOpacity "0.6"
             , d
                 ( -- Move right
                   "M "
@@ -216,8 +214,8 @@ defGradient theId col1 col2 =
       []
       [ linearGradient
           [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "100%" ]
-          [ stop [offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1"] []
-          ,  stop [offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1"] []
+          [ stop [offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0"] []
+          ,  stop [offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0"] []
           ]
       ]
 

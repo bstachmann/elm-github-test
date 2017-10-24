@@ -79,30 +79,15 @@ config =
           , "#FFBBFF"
           ]
           |> Array.fromList
+    , opacity = "0.7"
     }
 
 
-{--
-<defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" />
-    </linearGradient>
-  </defs>--}
-
 newRender : StreamLayout i -> List (Svg m)
 newRender ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) =
-    defs
-      []
-      [ linearGradient
-          [ id "grad1", x1 "0%", y1 "0%", x2 "100%", y2 "100%" ]
-          [ stop [offset "0%", Svg.Attributes.style "stop-color:rgb(255,255,0);stop-opacity:1"] []
-          ,  stop [offset "100%", Svg.Attributes.style "stop-color:rgb(255,0,0);stop-opacity:1"] []
-          ]
-      ]
-    :: (range 0 (nrOfColumns - 1)
-        |> List.foldl (renderColumn layout) []
-        )
+    (range 0 (nrOfColumns - 1)
+    |> List.foldl (renderColumn layout) []
+    )
 
 
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
@@ -213,9 +198,9 @@ defGradient theId col1 col2 =
     defs
       []
       [ linearGradient
-          [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "100%" ]
-          [ stop [offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0"] []
-          ,  stop [offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0"] []
+          [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
+          [ stop [offset "20%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:" ++ config.opacity ] []
+          ,  stop [offset "80%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:" ++ config.opacity ] []
           ]
       ]
 

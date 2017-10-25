@@ -105,59 +105,51 @@ renderColumn ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column acc
 renderSection : StreamLayout i -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
 renderSection ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane acc =
     let
-        x_ =
-            column * config.columnWidth
-
-        y_ =
-            0 + (config.rowHeight * lane)
-
-        index =
-            column * nrOfLanes + lane
-
-        m =
-            Dict.get index data
+        index = column * nrOfLanes + lane
     in
-        m
-            |> Maybe.map (\c -> renderCell layout x_ y_ c acc)
-            |> Maybe.withDefault acc
-            |> diagnostic "section" lane "blue" ( x_, y_, config.columnWidth, config.laneHeight )
+          Dict.get index data
+          |> Maybe.map (\c -> renderCell layout column lane c acc)
+          |> Maybe.withDefault acc
 
 
 renderCell : StreamLayout i -> Int -> Int -> Cell i -> List (Svg m) -> List (Svg m)
-renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) section_x section_y (NewCell i successors) acc =
+renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane (NewCell i successors) acc =
     let
         bounds =
-            ( section_x, section_y, config.columnWidth - config.connectorWidth, config.laneHeight )
+            ( column * config.columnWidth, lane * config.rowHeight, config.columnWidth - config.connectorWidth, config.laneHeight )
     in
-        rect ([ fill <| colorForLane <| section_y // config.rowHeight, fillOpacity "1.0" ] |> inBox bounds) []
-            :: text_ [ x (toString (section_x + 4)), y (toString (section_y + 14)), fill "blue" ] [ text <| toString i ]
+        rect ([ fill <| colorForLane lane, fillOpacity "1.0" ] |> inBox bounds) []
+            :: text_
+                [ x (toString (column * config.columnWidth + 4))
+                , y (toString (lane * config.rowHeight + 14))
+                , fill "blue"
+                ]
+                [ text <| toString i ]
             :: acc
-            |> (\acc -> List.foldl (newRenderConnections layout section_x section_y) acc successors)
+            |> (\acc -> List.foldl (newRenderConnections layout column lane) acc successors)
             |> diagnostic "cell" lane "red" bounds
 
 
 newRenderConnections : StreamLayout i -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
-newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) section_x section_y successorLane acc =
+newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column laneLeft laneRight acc =
     let
-        xRight = section_x + config.columnWidth
+        xRight = (column + 1) * config.columnWidth
         xLeft = xRight - config.connectorWidth
 
         xA = xLeft + ((config.connectorWidth * 1) // 4)
         xB = xLeft + ((config.connectorWidth * 2) // 4)
         xC = xLeft + ((config.connectorWidth * 3) // 4)
 
-        yLeftTop = section_y
+        yLeftTop = laneLeft * config.rowHeight
         yLeftBottom = yLeftTop + config.laneHeight
 
-        yRightTop = successorLane * config.rowHeight
+        yRightTop = laneRight * config.rowHeight
         yRightBottom = yRightTop + config.laneHeight
 
         yMiddleTop  =  (yLeftTop + yRightTop) // 2
         yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
 
-        laneLeft = section_y // config.rowHeight
-        laneRight = successorLane
-        colorLeft = colorForLane <| section_y // config.rowHeight
+        colorLeft = colorForLane laneLeft
         colorRight = colorForLane laneRight
 
         gradientId = "gr" ++ (toString laneLeft) ++ "_" ++ (toString laneRight)

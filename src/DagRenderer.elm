@@ -149,12 +149,9 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) co
         yMiddleTop  =  (yLeftTop + yRightTop) // 2
         yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
 
-        colorLeft = colorForLane laneLeft
-        colorRight = colorForLane laneRight
-
         gradientId = "gr" ++ (toString laneLeft) ++ "_" ++ (toString laneRight)
     in
-        defGradient gradientId colorLeft colorRight
+        defGradient gradientId (colorForLane laneLeft) (colorForLane laneRight)
         :: Svg.path
             [ fill <| "url(#" ++ gradientId ++ ")"
             , d

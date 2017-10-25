@@ -199,8 +199,8 @@ defGradient theId col1 col2 =
       []
       [ linearGradient
           [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
-          [ stop [offset "20%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:" ++ config.opacity ] []
-          ,  stop [offset "80%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:" ++ config.opacity ] []
+          [ stop [offset "15%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:" ++ config.opacity ] []
+          ,  stop [offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:" ++ config.opacity ] []
           ]
       ]
 

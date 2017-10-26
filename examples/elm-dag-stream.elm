@@ -12,7 +12,7 @@ type Msg
 
 sample : DagRenderer.StreamLayout String
 sample =
-    empty 7
+    empty 19
         |> appendColumn
         |> appendCell 0 "A" [ 1, 0 ]
         |> appendCell 1 "B" [ 1, 3 ]
@@ -21,6 +21,18 @@ sample =
         |> appendCell 4 "F" [ 3 ]
         |> appendCell 5 "K" [0]
         |> appendCell 6 "L" [3]
+        |> appendCell 7 "" []
+        |> appendCell 8 "" []
+        |> appendCell 9 "" []
+        |> appendCell 10 "" []
+        |> appendCell 11"" []
+        |> appendCell 12 "" []
+        |> appendCell 13 "" []
+        |> appendCell 14 "" []
+        |> appendCell 15 "" []
+        |> appendCell 16 "" []
+        |> appendCell 17 "" []
+        |> appendCell 18 "" []
         |> appendColumn
         |> appendCell 0 "A" []
         |> appendCell 1 "B" [ 1 ]

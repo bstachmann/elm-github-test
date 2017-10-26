@@ -72,13 +72,17 @@ config =
             ]
 
     , laneColors =
-          [ "#F8CCCC"
-          , "#CCF8CC"
-          , "#CCCCF8"
-          , "#CCF8F8"
-          , "#F8F8CC"
-          , "#F8CCF8"
-          ]
+          range 0 15
+          |> List.map
+              (\i -> "hsl(" ++ (toString (i * 360 // 16)) ++ ",90%,90%)"
+              )
+          -- [ "#F8CCCC"
+          -- , "#CCF8CC"
+          -- , "#CCCCF8"
+          -- , "#CCF8F8"
+          -- , "#F8F8CC"
+          -- , "#F8CCF8"
+          -- ]
           |> Array.fromList
     , opacity = "0.7"
     }

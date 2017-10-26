@@ -1,6 +1,7 @@
 module DagRenderer exposing (..)
 
 import List exposing (append, concatMap, map, drop, head, foldl, range)
+import Color exposing (..)
 import Array exposing (Array)
 import Set
 import Maybe
@@ -71,12 +72,12 @@ config =
             ]
 
     , laneColors =
-          [ "#FFBBBB"
-          , "#BBFFBB"
-          , "#BBBBFF"
-          , "#BBFFFF"
-          , "#FFFFBB"
-          , "#FFBBFF"
+          [ "#F8CCCC"
+          , "#CCF8CC"
+          , "#CCCCF8"
+          , "#CCF8F8"
+          , "#F8F8CC"
+          , "#F8CCF8"
           ]
           |> Array.fromList
     , opacity = "0.7"
@@ -182,14 +183,54 @@ newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) co
 
 {-- Implementation helpers --}
 
+
+mix : Float -> Color -> Color -> Color
+mix p c1 c2 =
+  let
+    cc1 = Color.toRgb c1
+    cc2 = Color.toRgb c2
+
+    m a b = round <| p * (toFloat a) + (1 - p) * (toFloat b)
+  in
+    Color.rgb (m cc1.red cc2.red) (m cc1.green cc2.green) (m cc1.blue cc2.blue)
+
+
+bisect : Float -> Float -> (Float -> Float) -> Float
+bisect l r f =
+  if (r - l) < 0.001 then
+      l
+  else
+      let
+        m = (l + r) / 2
+      in
+        if ((f l) * (f m)) <  0 then
+            bisect l m f
+        else
+            bisect m r f
+
+saturation : Color -> Float
+saturation col =
+    let
+        hsl = Color.toHsl col
+    in
+        hsl.saturation
+
+
+calcP2 : Color -> Float
+calcP2 col =
+  bisect 0.0 1.0 (\p -> ((saturation (mix p col (mix p col Color.white))) - (saturation col)))
+
+
 defGradient : String -> String -> String -> Svg m
 defGradient theId col1 col2 =
     defs
       []
       [ linearGradient
           [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
-          [ stop [offset "15%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:" ++ config.opacity ] []
-          ,  stop [offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:" ++ config.opacity ] []
+          [ stop [offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0"] []
+          , stop [offset "15%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:0.6"] []
+          , stop [offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:0.6"] []
+          , stop [offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0"] []
           ]
       ]
 
@@ -290,8 +331,8 @@ renderConnection section pred =
             )
         ]
         []
-    ]
 
+    ]
 
 render : Section -> List (Svg m)
 render section =

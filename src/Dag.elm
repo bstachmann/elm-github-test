@@ -1,4 +1,4 @@
-module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs, mapNodesByRank)
+module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs, mapNodesByRank, getNodeId)
 
 import Dict exposing (Dict, get, values)
 import List exposing (foldl, map, concatMap)
@@ -46,6 +46,9 @@ getPayload : Node comparable payload -> payload
 getPayload (NewNode p _) =
     p
 
+getNodeId : Dag comparable payload -> Node comparable payload -> comparable
+getNodeId (NewDag getId _ _) node =
+    getId <| getPayload node
 
 successors : Node comparable p -> List (Node comparable p)
 successors (NewNode _ s) =

@@ -1,8 +1,11 @@
 module Main exposing (main)
 
-import Dag exposing (Dag, Node, empty, node, mapNodesBfs, mapNodesByRank)
+import Dag exposing (Dag, Node, empty, node, mapNodesBfs, mapNodes, getNodeId, mapNodesByRank)
 import Html exposing (Html)
 import List exposing (intersperse, map)
+import DagRenderer exposing (..)
+import Dict
+
 
 
 type Msg
@@ -13,7 +16,7 @@ main : Html Msg
 main =
     let
         g =
-            empty identity
+            Dag.empty identity
                 |> node "A" []
                 |> node "B" [ "A" ]
                 |> node "C" [ "B" ]
@@ -21,7 +24,24 @@ main =
                 |> node "E" [ "C", "D" ]
                 |> node "F" [ "C" ]
     in
-        mapNodesByRank (\r n -> (toString r) ++ ": " ++ (toString n)) g
-            |> map Html.text
-            |> intersperse (Html.br [] [])
-            |> Html.body []
+        Dag.mapNodes (Dag.getNodeId g) g
+        |> List.foldl mapIdToLane emptyMapping
+        |> toString
+        |> Html.text
+        |> List.singleton
+        |> intersperse (Html.br [] [])
+        |> Html.body []
+
+
+type IdToLaneMapping i = EmptyMapping | NewMapping Int (Dict.Dict i Int)
+
+emptyMapping : IdToLaneMapping comparable
+emptyMapping = EmptyMapping
+
+mapIdToLane : comparable -> IdToLaneMapping comparable -> IdToLaneMapping comparable
+mapIdToLane comparable m =
+    case m of
+        EmptyMapping
+            -> NewMapping 0 <| Dict.singleton comparable 0
+        NewMapping maxId previousDict
+            -> NewMapping (maxId + 1) <|Dict.insert comparable (maxId + 1) previousDict

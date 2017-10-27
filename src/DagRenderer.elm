@@ -55,6 +55,10 @@ appendCell lane i successors (NewStreamLayout nrOfLanes nrOfColumns data) =
     in
         NewStreamLayout nrOfLanes nrOfColumns nextData
 
+nrOfColumns (NewStreamLayout _ nrOfColumns _) =
+    nrOfColumns
+
+
 {-- Rendering to SVG --}
 
 config =

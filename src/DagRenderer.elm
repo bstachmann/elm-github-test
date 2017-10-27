@@ -72,17 +72,13 @@ config =
             ]
 
     , laneColors =
-          range 0 15
-          |> List.map
-              (\i -> "hsl(" ++ (toString (i * 360 // 16)) ++ ",90%,90%)"
-              )
-          -- [ "#F8CCCC"
-          -- , "#CCF8CC"
-          -- , "#CCCCF8"
-          -- , "#CCF8F8"
-          -- , "#F8F8CC"
-          -- , "#F8CCF8"
-          -- ]
+          let
+              n = 8
+          in
+            range 0 (n - 1)
+            |> List.map
+                (\i -> "hsl(" ++ (toString (i * 360 // n)) ++ ",90%,90%)"
+                )
           |> Array.fromList
     , opacity = "0.7"
     }
@@ -205,7 +201,7 @@ defGradient theId col1 col2 =
 
 colorForLane : LaneId -> String
 colorForLane lane =
-    Array.get (lane % (Array.length config.laneColors)) config.laneColors |> Maybe.withDefault "blue"
+    Array.get ((lane * 3) % (Array.length config.laneColors)) config.laneColors |> Maybe.withDefault "blue"
 
 
 diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> List (Svg m)

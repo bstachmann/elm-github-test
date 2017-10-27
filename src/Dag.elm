@@ -1,7 +1,31 @@
-module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs, mapNodesByRank, getNodeId, foldlByRank, rootIds, successors)
+module Dag
+    exposing
+        ( Dag
+        , Node
+        , empty
+        , node
+        , mapNodes
+        , mapNodesBfs
+        , mapNodesByRank
+        , getNodeId
+        , foldlByRank
+        , rootIds
+        , successors
+        )
+
+{-| A library for creating and traversing DAGs (directed acyclic graph).
+
+# Creation
+@docs empty
+
+# Traversal
+@docs mapNodes
+
+-}
+
 
 import Dict exposing (Dict, get, values)
-import List exposing (foldl, map, concatMap)
+import List exposing (concatMap, foldl, map)
 import Maybe
 import Set exposing (Set, filter, member, remove)
 

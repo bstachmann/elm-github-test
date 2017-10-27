@@ -30,12 +30,17 @@ import Maybe
 import Set exposing (Set, filter, member, remove)
 
 
-type Dag comparable payload
-    = NewDag (payload -> comparable) (Dict comparable (Node comparable payload)) (Set comparable)
+{-- CORE TYPES --}
+
+type Dag comparable p
+    = NewDag (p -> comparable) (Dict comparable (Node comparable p)) (Set comparable)
 
 
-type Node comparable payload
-    = NewNode payload (List (Node comparable payload))
+type Node comparable p
+    = NewNode p (List (Node comparable p))
+
+
+{-- CREATION --}
 
 
 empty : (payload -> comparable) -> Dag comparable payload

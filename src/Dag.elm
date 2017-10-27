@@ -1,7 +1,8 @@
 module Dag
     exposing
         ( Dag
-        , LinkedNode
+        , Node
+        , SimpleDag
         , empty
         , node
         , mapNodes
@@ -33,29 +34,40 @@ import Set exposing (Set, filter, member, remove)
 -- Core Types
 
 {-| Represents a directed acyclic graph (DAG).
-Each LinkedNode can carry a payload of type `p` and has to provide a uniquie identifier of type `i`.  --}
+Each Node can carry a payload of type `p` and has to provide a uniquie identifier of type `i`.  --}
 
 type Dag i p
-    =
-        LinkedNodesDag -- A graph representation where nodes reference their successore directly.
+    = LinkedNodesDag -- A graph representation where nodes reference their successore directly.
 
-            -- Function to extract the id from a nodes payload
-            (p -> i)
+        -- Function to extract the id from a nodes payload
+        (p -> i)
 
-            -- Map to store and lookup all nodes by their id
-            (Dict i (LinkedNode i p))
+        -- Map to store and lookup all nodes by their id
+        (Dict i (Node i p))
 
-            -- Ids of source nodes as entrypoint for traversal algorithms
-            (Set i)
+        -- Ids of source nodes as entrypoint for traversal algorithms
+        (Set i)
 
-{-| Represents a LinkedNode in DAG carrying a payload of type `p`.  --}
+{-| Represents a Node in DAG carrying a payload of type `p`.
 
-type LinkedNode comparable p
-    = NewNode p (List (LinkedNode comparable p))
+The payload may be an arbitrarily complex data structure, e. g.  a record. --}
+
+type Node comparable p
+    = LinkedNode
+
+        -- Payload of data attached to this node
+        p
+
+        -- All successors nodes that are reachable by a single edge from this noder
+        (List (Node comparable p))
 
 
-{-- CREATION --}
+{-| A simple Dag is one where the nodes can be uniquely identified with `toString` on their payload  --}
 
+type alias SimpleDag p = Dag String p
+
+
+-- CREATION
 
 empty : (payload -> comparable) -> Dag comparable payload
 empty getId =
@@ -77,7 +89,7 @@ node payload successorIds (LinkedNodesDag getId dagNodes rootIds) =
             List.filterMap (\i -> get i dagNodes) successorIds
 
         newNode =
-            NewNode payload successorNodes
+            LinkedNode payload successorNodes
 
         newNodes =
             Dict.insert idOfNewNode newNode dagNodes
@@ -85,12 +97,12 @@ node payload successorIds (LinkedNodesDag getId dagNodes rootIds) =
         LinkedNodesDag getId newNodes newRootIds
 
 
-getPayload : LinkedNode comparable payload -> payload
-getPayload (NewNode p _) =
+getPayload : Node comparable payload -> payload
+getPayload (LinkedNode p _) =
     p
 
 
-getNodeId : Dag comparable payload -> LinkedNode comparable payload -> comparable
+getNodeId : Dag comparable payload -> Node comparable payload -> comparable
 getNodeId (LinkedNodesDag getId _ _) node =
     getId <| getPayload node
 
@@ -100,17 +112,17 @@ rootIds (LinkedNodesDag _ _ rootIds) =
     rootIds
 
 
-successors : LinkedNode comparable p -> List (LinkedNode comparable p)
-successors (NewNode _ s) =
+successors : Node comparable p -> List (Node comparable p)
+successors (LinkedNode _ s) =
     s
 
 
-mapNodes : (LinkedNode comparable payload -> a) -> Dag comparable payload -> List a
+mapNodes : (Node comparable payload -> a) -> Dag comparable payload -> List a
 mapNodes function (LinkedNodesDag _ dagNodes _) =
     values dagNodes |> map function
 
 
-foldlbreadthFirst : Int -> (Int -> LinkedNode comparable p -> a -> a) -> a -> Dag comparable p -> a
+foldlbreadthFirst : Int -> (Int -> Node comparable p -> a -> a) -> a -> Dag comparable p -> a
 foldlbreadthFirst rank function acc (LinkedNodesDag getId nodes rootIds) =
     let
         ( firstRankNodes, remainingNodes ) =
@@ -133,12 +145,12 @@ foldlbreadthFirst rank function acc (LinkedNodesDag getId nodes rootIds) =
             nextAcc
 
 
-mapNodesBfs : (Int -> LinkedNode comparable p -> a) -> Dag comparable p -> List a
+mapNodesBfs : (Int -> Node comparable p -> a) -> Dag comparable p -> List a
 mapNodesBfs function dag =
     foldlbreadthFirst 0 (\r n acc -> function r n :: acc) [] dag
 
 
-foldlByRank : Int -> (Int -> LinkedNode comparable p -> a -> a) -> a -> Dag comparable p -> a
+foldlByRank : Int -> (Int -> Node comparable p -> a -> a) -> a -> Dag comparable p -> a
 foldlByRank rank function acc (LinkedNodesDag getId nodes rootIds) =
     let
         ( rootNodes, remainingNodes ) =
@@ -169,6 +181,6 @@ foldlByRank rank function acc (LinkedNodesDag getId nodes rootIds) =
             nextAcc
 
 
-mapNodesByRank : (Int -> LinkedNode comparable p -> a) -> Dag comparable p -> List a
+mapNodesByRank : (Int -> Node comparable p -> a) -> Dag comparable p -> List a
 mapNodesByRank function dag =
     foldlByRank 0 (\r n acc -> function r n :: acc) [] dag

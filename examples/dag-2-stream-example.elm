@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Dag exposing (Dag, LinkedNode, empty, node, mapNodesBfs, mapNodes, getNodeId, mapNodesByRank, foldlByRank)
+import Dag exposing (Dag, Node, empty, node, mapNodesBfs, mapNodes, getNodeId, mapNodesByRank, foldlByRank)
 import Html exposing (Html)
 import List exposing (intersperse, map)
 import DagRenderer exposing (..)
@@ -32,7 +32,7 @@ main =
             |> List.foldl mapIdToLane emptyMapping
 
 
-        buildStream : Int -> LinkedNode String String -> (Set.Set String, StreamLayout String) -> (Set.Set String, StreamLayout String)
+        buildStream : Int -> Node String String -> (Set.Set String, StreamLayout String) -> (Set.Set String, StreamLayout String)
         buildStream column node (openNodeIds, layout) =
             let
                 l = if column >= (nrOfColumns layout) - 1 then

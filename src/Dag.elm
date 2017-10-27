@@ -46,9 +46,11 @@ getPayload : Node comparable payload -> payload
 getPayload (NewNode p _) =
     p
 
+
 getNodeId : Dag comparable payload -> Node comparable payload -> comparable
 getNodeId (NewDag getId _ _) node =
     getId <| getPayload node
+
 
 rootIds : Dag comparable payload -> Set comparable
 rootIds (NewDag _ _ rootIds) =

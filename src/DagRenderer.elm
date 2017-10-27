@@ -9,7 +9,9 @@ import Dict exposing (Dict)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 
-{-- Types --}
+
+{--Types --}
+
 
 type Cell i
     = NewCell i (List Int)
@@ -27,7 +29,8 @@ type alias LaneId =
     Int
 
 
-{-- Building layouts --}
+
+{--Building layouts --}
 
 
 empty : Int -> StreamLayout i
@@ -55,14 +58,17 @@ appendCell lane i successors (NewStreamLayout nrOfLanes nrOfColumns data) =
     in
         NewStreamLayout nrOfLanes nrOfColumns nextData
 
+
 nrOfColumns (NewStreamLayout _ nrOfColumns _) =
     nrOfColumns
 
 
-{-- Rendering to SVG --}
+
+{--Rendering to SVG --}
+
 
 config =
-    { columnWidth =120
+    { columnWidth = 120
     , connectorWidth = 80
     , rowHeight = 50
     , laneHeight = 30
@@ -74,16 +80,15 @@ config =
             -- , "section"
             -- , "cell"
             ]
-
     , laneColors =
-          let
-              n = 8
-          in
+        let
+            n =
+                8
+        in
             range 0 (n - 1)
-            |> List.map
-                (\i -> "hsl(" ++ (toString (i * 360 // n)) ++ ",90%,90%)"
-                )
-          |> Array.fromList
+                |> List.map
+                    (\i -> "hsl(" ++ (toString (i * 360 // n)) ++ ",90%,90%)")
+                |> Array.fromList
     , opacity = "0.7"
     }
 
@@ -91,7 +96,7 @@ config =
 newRender : StreamLayout i -> List (Svg m)
 newRender ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) =
     (range 0 (nrOfColumns - 1)
-    |> List.foldl (renderColumn layout) []
+        |> List.foldl (renderColumn layout) []
     )
 
 
@@ -106,15 +111,15 @@ renderColumn ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column acc
             |> (\acc -> foldl (renderSection layout column) acc (range 0 (nrOfLanes - 1)))
 
 
-
 renderSection : StreamLayout i -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
 renderSection ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane acc =
     let
-        index = column * nrOfLanes + lane
+        index =
+            column * nrOfLanes + lane
     in
-          Dict.get index data
-          |> Maybe.map (\c -> renderCell layout column lane c acc)
-          |> Maybe.withDefault acc
+        Dict.get index data
+            |> Maybe.map (\c -> renderCell layout column lane c acc)
+            |> Maybe.withDefault acc
 
 
 renderCell : StreamLayout i -> Int -> Int -> Cell i -> List (Svg m) -> List (Svg m)
@@ -138,69 +143,88 @@ renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane 
 newRenderConnections : StreamLayout i -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
 newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column laneLeft laneRight acc =
     let
-        xRight = (column + 1) * config.columnWidth
-        xLeft = xRight - config.connectorWidth
+        xRight =
+            (column + 1) * config.columnWidth
 
-        xA = xLeft + ((config.connectorWidth * 1) // 4)
-        xB = xLeft + ((config.connectorWidth * 2) // 4)
-        xC = xLeft + ((config.connectorWidth * 3) // 4)
+        xLeft =
+            xRight - config.connectorWidth
 
-        yLeftTop = laneLeft * config.rowHeight
-        yLeftBottom = yLeftTop + config.laneHeight
+        xA =
+            xLeft + ((config.connectorWidth * 1) // 4)
 
-        yRightTop = laneRight * config.rowHeight
-        yRightBottom = yRightTop + config.laneHeight
+        xB =
+            xLeft + ((config.connectorWidth * 2) // 4)
 
-        yMiddleTop  =  (yLeftTop + yRightTop) // 2
-        yMiddleBottom  =  (yLeftBottom + yRightBottom) // 2
+        xC =
+            xLeft + ((config.connectorWidth * 3) // 4)
 
-        gradientId = "gr" ++ (toString laneLeft) ++ "_" ++ (toString laneRight)
+        yLeftTop =
+            laneLeft * config.rowHeight
+
+        yLeftBottom =
+            yLeftTop + config.laneHeight
+
+        yRightTop =
+            laneRight * config.rowHeight
+
+        yRightBottom =
+            yRightTop + config.laneHeight
+
+        yMiddleTop =
+            (yLeftTop + yRightTop) // 2
+
+        yMiddleBottom =
+            (yLeftBottom + yRightBottom) // 2
+
+        gradientId =
+            "gr" ++ (toString laneLeft) ++ "_" ++ (toString laneRight)
     in
         defGradient gradientId (colorForLane laneLeft) (colorForLane laneRight)
-        :: Svg.path
-            [ fill <| "url(#" ++ gradientId ++ ")"
-            , d
-                ( -- Move right
-                  "M "
-                ++ (point xLeft yLeftTop)
-                ++ "Q "
-                ++ (point xA yLeftTop)
-                ++ (point xB yMiddleTop)
-                ++ "Q "
-                ++ (point xC yRightTop)
-                ++ (point xRight yRightTop)
-                -- Move down
-                ++ "L "
-                ++ (point xRight yRightBottom)
-                -- Move left
-                ++ "Q "
-                ++ (point xC yRightBottom)
-                ++ (point xB yMiddleBottom)
-                ++ "Q "
-                ++ (point xA yLeftBottom)
-                ++ (point xLeft yLeftBottom)
-                ++ "Z"
-                )
-            ]
-            []
+            :: Svg.path
+                [ fill <| "url(#" ++ gradientId ++ ")"
+                , d
+                    (-- Move right
+                     "M "
+                        ++ (point xLeft yLeftTop)
+                        ++ "Q "
+                        ++ (point xA yLeftTop)
+                        ++ (point xB yMiddleTop)
+                        ++ "Q "
+                        ++ (point xC yRightTop)
+                        ++ (point xRight yRightTop)
+                        -- Move down
+                        ++ "L "
+                        ++ (point xRight yRightBottom)
+                        -- Move left
+                        ++ "Q "
+                        ++ (point xC yRightBottom)
+                        ++ (point xB yMiddleBottom)
+                        ++ "Q "
+                        ++ (point xA yLeftBottom)
+                        ++ (point xLeft yLeftBottom)
+                        ++ "Z"
+                    )
+                ]
+                []
             :: acc
 
-{-- Implementation helpers --}
+
+
+{--Implementation helpers --}
 
 
 defGradient : String -> String -> String -> Svg m
 defGradient theId col1 col2 =
     defs
-      []
-      [ linearGradient
-          [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
-          [ stop [offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0"] []
-          , stop [offset "30%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:0.6"] []
-          , stop [offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:0.6"] []
-          , stop [offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0"] []
-          ]
-      ]
-
+        []
+        [ linearGradient
+            [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
+            [ stop [ offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0" ] []
+            , stop [ offset "30%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:0.6" ] []
+            , stop [ offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:0.6" ] []
+            , stop [ offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0" ] []
+            ]
+        ]
 
 
 colorForLane : LaneId -> String
@@ -227,16 +251,18 @@ inBox ( x0, y0, w, h ) acc =
         :: acc
 
 
-{-- Deprecated Stuff --}
+
+{--Deprecated Stuff --}
+
 
 laneColors =
-        [ "#FFBBBB"
-        , "#BBFFBB"
-        , "#BBBBFF"
-        , "#BBFFFF"
-        , "#FFFFBB"
-        , "#FFBBFF"
-        ]
+    [ "#FFBBBB"
+    , "#BBFFBB"
+    , "#BBBBFF"
+    , "#BBFFFF"
+    , "#FFFFBB"
+    , "#FFBBFF"
+    ]
 
 
 type alias Lane =
@@ -298,8 +324,8 @@ renderConnection section pred =
             )
         ]
         []
-
     ]
+
 
 render : Section -> List (Svg m)
 render section =

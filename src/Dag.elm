@@ -1,4 +1,4 @@
-module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs, mapNodesByRank, getNodeId, foldlByRank)
+module Dag exposing (Dag, Node, empty, node, mapNodes, mapNodesBfs, mapNodesByRank, getNodeId, foldlByRank, successors)
 
 import Dict exposing (Dict, get, values)
 import List exposing (foldl, map, concatMap)

@@ -41,8 +41,14 @@ main =
 
                 nodeId = Dag.getNodeId g node
 
+                successorLanes =
+                    Dag.successors node
+                    |> List.map (getNodeId g)
+                    -- improve evil filter
+                    |> List.filterMap (\i -> laneFor i idToLane)
+
             in
-                DagRenderer.appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId [] l
+                DagRenderer.appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId successorLanes l
 
         layout = foldlByRank 0  buildStream (DagRenderer.empty 42) g
     in

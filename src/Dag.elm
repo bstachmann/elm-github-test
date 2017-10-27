@@ -1,7 +1,7 @@
 module Dag
     exposing
         ( Dag
-        , Node
+        , LinkedNode
         , empty
         , node
         , mapNodes
@@ -30,14 +30,28 @@ import Maybe
 import Set exposing (Set, filter, member, remove)
 
 
-{-- CORE TYPES --}
+-- Core Types
 
-type Dag comparable p
-    = NewDag (p -> comparable) (Dict comparable (Node comparable p)) (Set comparable)
+{-| Represents a directed acyclic graph (DAG).
+Each LinkedNode can carry a payload of type `p` and has to provide a uniquie identifier of type `i`.  --}
 
+type Dag i p
+    =
+        LinkedNodesDag -- A graph representation where nodes reference their successore directly.
 
-type Node comparable p
-    = NewNode p (List (Node comparable p))
+            -- Function to extract the id from a nodes payload
+            (p -> i)
+
+            -- Map to store and lookup all nodes by their id
+            (Dict i (LinkedNode i p))
+
+            -- Ids of source nodes as entrypoint for traversal algorithms
+            (Set i)
+
+{-| Represents a LinkedNode in DAG carrying a payload of type `p`.  --}
+
+type LinkedNode comparable p
+    = NewNode p (List (LinkedNode comparable p))
 
 
 {-- CREATION --}
@@ -45,11 +59,11 @@ type Node comparable p
 
 empty : (payload -> comparable) -> Dag comparable payload
 empty getId =
-    NewDag getId Dict.empty Set.empty
+    LinkedNodesDag getId Dict.empty Set.empty
 
 
 node : payload -> List comparable -> Dag comparable payload -> Dag comparable payload
-node payload successorIds (NewDag getId dagNodes rootIds) =
+node payload successorIds (LinkedNodesDag getId dagNodes rootIds) =
     let
         idOfNewNode =
             getId payload
@@ -68,36 +82,36 @@ node payload successorIds (NewDag getId dagNodes rootIds) =
         newNodes =
             Dict.insert idOfNewNode newNode dagNodes
     in
-        NewDag getId newNodes newRootIds
+        LinkedNodesDag getId newNodes newRootIds
 
 
-getPayload : Node comparable payload -> payload
+getPayload : LinkedNode comparable payload -> payload
 getPayload (NewNode p _) =
     p
 
 
-getNodeId : Dag comparable payload -> Node comparable payload -> comparable
-getNodeId (NewDag getId _ _) node =
+getNodeId : Dag comparable payload -> LinkedNode comparable payload -> comparable
+getNodeId (LinkedNodesDag getId _ _) node =
     getId <| getPayload node
 
 
 rootIds : Dag comparable payload -> Set comparable
-rootIds (NewDag _ _ rootIds) =
+rootIds (LinkedNodesDag _ _ rootIds) =
     rootIds
 
 
-successors : Node comparable p -> List (Node comparable p)
+successors : LinkedNode comparable p -> List (LinkedNode comparable p)
 successors (NewNode _ s) =
     s
 
 
-mapNodes : (Node comparable payload -> a) -> Dag comparable payload -> List a
-mapNodes function (NewDag _ dagNodes _) =
+mapNodes : (LinkedNode comparable payload -> a) -> Dag comparable payload -> List a
+mapNodes function (LinkedNodesDag _ dagNodes _) =
     values dagNodes |> map function
 
 
-foldlbreadthFirst : Int -> (Int -> Node comparable p -> a -> a) -> a -> Dag comparable p -> a
-foldlbreadthFirst rank function acc (NewDag getId nodes rootIds) =
+foldlbreadthFirst : Int -> (Int -> LinkedNode comparable p -> a -> a) -> a -> Dag comparable p -> a
+foldlbreadthFirst rank function acc (LinkedNodesDag getId nodes rootIds) =
     let
         ( firstRankNodes, remainingNodes ) =
             nodes |> Dict.partition (\i v -> member i rootIds)
@@ -114,18 +128,18 @@ foldlbreadthFirst rank function acc (NewDag getId nodes rootIds) =
     in
         if not (Dict.isEmpty remainingNodes) then
             {--TO DO unsauber bc nextRankRootIds arent necessarily roots --}
-            foldlbreadthFirst (rank + 1) function nextAcc (NewDag getId remainingNodes nextRankRootIds)
+            foldlbreadthFirst (rank + 1) function nextAcc (LinkedNodesDag getId remainingNodes nextRankRootIds)
         else
             nextAcc
 
 
-mapNodesBfs : (Int -> Node comparable p -> a) -> Dag comparable p -> List a
+mapNodesBfs : (Int -> LinkedNode comparable p -> a) -> Dag comparable p -> List a
 mapNodesBfs function dag =
     foldlbreadthFirst 0 (\r n acc -> function r n :: acc) [] dag
 
 
-foldlByRank : Int -> (Int -> Node comparable p -> a -> a) -> a -> Dag comparable p -> a
-foldlByRank rank function acc (NewDag getId nodes rootIds) =
+foldlByRank : Int -> (Int -> LinkedNode comparable p -> a -> a) -> a -> Dag comparable p -> a
+foldlByRank rank function acc (LinkedNodesDag getId nodes rootIds) =
     let
         ( rootNodes, remainingNodes ) =
             nodes |> Dict.partition (\i v -> member i rootIds)
@@ -150,11 +164,11 @@ foldlByRank rank function acc (NewDag getId nodes rootIds) =
             Set.diff nextRankIds overnextRankIds
     in
         if not (Dict.isEmpty remainingNodes) then
-            foldlByRank (rank + 1) function nextAcc (NewDag getId remainingNodes nextRootIds)
+            foldlByRank (rank + 1) function nextAcc (LinkedNodesDag getId remainingNodes nextRootIds)
         else
             nextAcc
 
 
-mapNodesByRank : (Int -> Node comparable p -> a) -> Dag comparable p -> List a
+mapNodesByRank : (Int -> LinkedNode comparable p -> a) -> Dag comparable p -> List a
 mapNodesByRank function dag =
     foldlByRank 0 (\r n acc -> function r n :: acc) [] dag

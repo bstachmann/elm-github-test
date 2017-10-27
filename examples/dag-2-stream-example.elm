@@ -3,9 +3,6 @@ module Main exposing (main)
 import Dag exposing (Dag, Node, empty, node, mapNodesBfs, mapNodesByRank)
 import Html exposing (Html)
 import List exposing (intersperse, map)
-import DagRenderer exposing (..)
-import Dict
-
 
 
 type Msg
@@ -28,17 +25,3 @@ main =
             |> map Html.text
             |> intersperse (Html.br [] [])
             |> Html.body []
-
-
-type IdToLaneMapping i = EmptyMapping | NewMapping Int (Dict.Dict i Int)
-
-empty : IdToLaneMapping
-empty = EmptyMapping
-
-mapIdToLane : i -> IdToLaneMapping -> IdToLaneMapping
-mapIdToLane i m =
-    case m of
-        Empty
-            -> NewMapping 0 <| Dict.singleton i 0
-        NewMapping maxId Dict as previousDict
-            -> NewMapping (maxId + 1) <| Dict.insert i (maxId + 1) previousDict

@@ -16,14 +16,17 @@ module Dag
 
 {-| A library for creating and traversing DAGs (directed acyclic graph).
 
+
 # Creation
+
 @docs empty
 
+
 # Traversal
+
 @docs mapNodes
 
 -}
-
 
 import Dict exposing (Dict, get, values)
 import List exposing (concatMap, foldl, map)
@@ -33,41 +36,43 @@ import Set exposing (Set, filter, member, remove)
 
 -- Core Types
 
+
 {-| Represents a directed acyclic graph (DAG).
-Each Node can carry a payload of type `p` and has to provide a uniquie identifier of type `i`.  --}
-
+Each Node can carry a payload of type `p` and has to provide a uniquie identifier of type `i`. -
+-}
 type Dag i p
-    = LinkedNodesDag -- A graph representation where nodes reference their successore directly.
-
+    = LinkedNodesDag
+        -- A graph representation where nodes reference their successore directly.
         -- Function to extract the id from a nodes payload
         (p -> i)
-
         -- Map to store and lookup all nodes by their id
         (Dict i (Node i p))
-
         -- Ids of source nodes as entrypoint for traversal algorithms
         (Set i)
 
+
 {-| Represents a Node in DAG carrying a payload of type `p`.
 
-The payload may be an arbitrarily complex data structure, e. g.  a record. --}
+The payload may be an arbitrarily complex data structure, e. g. a record. -
 
+-}
 type Node comparable p
     = LinkedNode
-
         -- Payload of data attached to this node
         p
-
         -- All successors nodes that are reachable by a single edge from this noder
         (List (Node comparable p))
 
 
-{-| A simple Dag is one where the nodes can be uniquely identified with `toString` on their payload  --}
+{-| A simple Dag is one where the nodes can be uniquely identified with `toString` on their payload -
+-}
+type alias SimpleDag p =
+    Dag String p
 
-type alias SimpleDag p = Dag String p
 
 
 -- CREATION
+
 
 empty : (payload -> comparable) -> Dag comparable payload
 empty getId =

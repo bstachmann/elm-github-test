@@ -7,6 +7,7 @@ import DagRenderer exposing (..)
 import Dict
 import Svg
 import Svg.Attributes exposing (..)
+import Set
 
 
 
@@ -31,26 +32,36 @@ main =
             |> List.foldl mapIdToLane emptyMapping
 
 
-        buildStream : Int -> Node String String -> StreamLayout String -> StreamLayout String
-        buildStream column node layout =
+        buildStream : Int -> Node String String -> (Set.Set String, StreamLayout String) -> (Set.Set String, StreamLayout String)
+        buildStream column node (openNodeIds, layout) =
             let
                 l = if column >= (nrOfColumns layout) - 1 then
-                      DagRenderer.appendColumn layout
+                      -- doppelt ?
+                      openNodeIds |> Set.foldl (\i acc -> DagRenderer.appendCell (laneFor i idToLane |> Maybe.withDefault 0) i [(laneFor i idToLane |> Maybe.withDefault 0)] acc) (DagRenderer.appendColumn layout)
                 else
                       layout
 
                 nodeId = Dag.getNodeId g node
 
-                successorLanes =
-                    Dag.successors node
-                    |> List.map (getNodeId g)
-                    -- improve evil filter
-                    |> List.filterMap (\i -> laneFor i idToLane)
+                -- improve evil filter
+                succesorNodeIds =
+                    Dag.successors node |> List.map (getNodeId g)
+
+                successorLaneIds =
+                    succesorNodeIds |> List.filterMap (\i -> laneFor i idToLane)
+
+                nextOpenIds =
+                   Set.remove nodeId openNodeIds
+                   |> Set.union (Set.fromList succesorNodeIds)
+
+                nextLayout =
+                    DagRenderer.appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId successorLaneIds l
 
             in
-                DagRenderer.appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId successorLanes l
+                (nextOpenIds, nextLayout)
 
-        layout = foldlByRank 0  buildStream (DagRenderer.empty 42) g
+
+        (_,layout) = foldlByRank 0  buildStream ( Dag.rootIds g, DagRenderer.empty 42) g
     in
             Html.body []
                 [ Html.text <| "Hello Rendering Dag to Stream Graph!"

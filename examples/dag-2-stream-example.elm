@@ -23,10 +23,13 @@ main =
                 |> node "D" [ "A" ]
                 |> node "E" [ "C", "D" ]
                 |> node "F" [ "C" ]
+
+        idToLane =
+            Dag.mapNodes (Dag.getNodeId g) g
+            |> List.foldl mapIdToLane emptyMapping
+            |> toString
     in
-        Dag.mapNodes (Dag.getNodeId g) g
-        |> List.foldl mapIdToLane emptyMapping
-        |> toString
+        idToLane
         |> Html.text
         |> List.singleton
         |> intersperse (Html.br [] [])

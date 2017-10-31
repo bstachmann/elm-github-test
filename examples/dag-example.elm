@@ -16,7 +16,7 @@ main : Html Msg
 main =
     let
         g =
-            empty identity
+            Dag.empty identity
                 |> node "A" []
                 |> node "B" [ "A" ]
                 |> node "C" [ "B" ]
@@ -28,17 +28,3 @@ main =
             |> map Html.text
             |> intersperse (Html.br [] [])
             |> Html.body []
-
-
-type IdToLaneMapping i = EmptyMapping | NewMapping Int (Dict.Dict i Int)
-
-empty : IdToLaneMapping
-empty = EmptyMapping
-
-mapIdToLane : i -> IdToLaneMapping -> IdToLaneMapping
-mapIdToLane i m =
-    case m of
-        Empty
-            -> NewMapping 0 <| Dict.singleton i 0
-        NewMapping maxId Dict as previousDict
-            -> NewMapping (maxId + 1) <| Dict.insert i (maxId + 1) previousDict

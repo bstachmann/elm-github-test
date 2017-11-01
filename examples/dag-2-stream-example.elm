@@ -32,7 +32,9 @@ main =
             |> List.foldl mapIdToLane emptyMapping
 
 
-        (_,layout) = foldlByRank 0  (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty) g
+        (_,layout1) = foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty) g
+
+        layout2 = layout1
     in
             Html.body []
                 [ Html.text <| "Hello Rendering Dag to Stream Graph!"
@@ -42,8 +44,14 @@ main =
                 , Html.text <| "config: " ++ (toString config)
                 , Html.br [] []
                 ,  Svg.svg
-                    [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "2024px", viewBox "0 0 1280px 2024px" ]
-                  <| DagRenderer.newRender layout
+                    [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "400px", viewBox "0 0 1280px 2024px" ]
+                    <| DagRenderer.newRender layout1
+                , Html.br [] []
+                , Html.text <| "Achtung: "
+                , Html.br [] []
+                ,  Svg.svg
+                    [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "400px", viewBox "0 0 1280px 2024px" ]
+                    <| DagRenderer.newRender layout2
                 ]
 
 

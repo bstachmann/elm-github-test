@@ -32,36 +32,7 @@ main =
             |> List.foldl mapIdToLane emptyMapping
 
 
-        buildStream : Int -> Node String String -> (Set.Set String, StreamLayout String) -> (Set.Set String, StreamLayout String)
-        buildStream column node (openNodeIds, layout) =
-            let
-                l = if column >= (nrOfColumns layout) - 1 then
-                      -- doppelt ?
-                      openNodeIds |> Set.foldl (\i acc -> DagRenderer.appendCell (laneFor i idToLane |> Maybe.withDefault 0) i [(laneFor i idToLane |> Maybe.withDefault 0)] acc) (DagRenderer.appendColumn layout)
-                else
-                      layout
-
-                nodeId = Dag.getNodeId g node
-
-                -- improve evil filter
-                succesorNodeIds =
-                    Dag.successors node |> List.map (getNodeId g)
-
-                successorLaneIds =
-                    succesorNodeIds |> List.filterMap (\i -> laneFor i idToLane)
-
-                nextOpenIds =
-                   Set.remove nodeId openNodeIds
-                   |> Set.union (Set.fromList succesorNodeIds)
-
-                nextLayout =
-                    DagRenderer.appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId successorLaneIds l
-
-            in
-                (nextOpenIds, nextLayout)
-
-
-        (_,layout) = foldlByRank 0  buildStream ( Dag.rootIds g, DagRenderer.empty) g
+        (_,layout) = foldlByRank 0  (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty) g
     in
             Html.body []
                 [ Html.text <| "Hello Rendering Dag to Stream Graph!"
@@ -74,6 +45,39 @@ main =
                     [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "2024px", viewBox "0 0 1280px 2024px" ]
                   <| DagRenderer.newRender layout
                 ]
+
+
+
+buildStream : (IdToLaneMapping String) -> Dag String String -> Int -> Node String String -> (Set.Set String, StreamLayout String) -> (Set.Set String, StreamLayout String)
+buildStream idToLane g column node (openNodeIds, layout) =
+   let
+
+
+      l = if column >= (nrOfColumns layout) - 1 then
+            -- doppelt ?
+            openNodeIds |> Set.foldl (\i acc -> DagRenderer.appendCell (laneFor i idToLane |> Maybe.withDefault 0) i [(laneFor i idToLane |> Maybe.withDefault 0)] acc) (DagRenderer.appendColumn layout)
+      else
+            layout
+
+      nodeId = Dag.getNodeId g node
+
+      -- improve evil filter
+      succesorNodeIds =
+          Dag.successors node |> List.map (getNodeId g)
+
+      successorLaneIds =
+          succesorNodeIds |> List.filterMap (\i -> laneFor i idToLane)
+
+      nextOpenIds =
+         Set.remove nodeId openNodeIds
+         |> Set.union (Set.fromList succesorNodeIds)
+
+      nextLayout =
+          DagRenderer.appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId successorLaneIds l
+
+  in
+      (nextOpenIds, nextLayout)
+
 
 
 type IdToLaneMapping comparable = EmptyMapping | NewMapping Int (Dict.Dict comparable Int)

@@ -61,7 +61,7 @@ main =
                 (nextOpenIds, nextLayout)
 
 
-        (_,layout) = foldlByRank 0  buildStream ( Dag.rootIds g, DagRenderer.empty 42) g
+        (_,layout) = foldlByRank 0  buildStream ( Dag.rootIds g, DagRenderer.empty) g
     in
             Html.body []
                 [ Html.text <| "Hello Rendering Dag to Stream Graph!"

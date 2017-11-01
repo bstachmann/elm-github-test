@@ -1,11 +1,11 @@
 module DagRenderer exposing (..)
 
-import List exposing (append, concatMap, map, drop, head, foldl, range)
-import Color exposing (..)
 import Array exposing (Array)
-import Set
-import Maybe
+import Color exposing (..)
 import Dict exposing (Dict)
+import List exposing (append, concatMap, drop, foldl, head, map, range)
+import Maybe exposing (withDefault)
+import Set
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 
@@ -17,8 +17,12 @@ type Cell i
     = NewCell i (List Int)
 
 
+type alias ColumnDict i
+    = Dict Int (Cell i)
+
+
 type StreamLayout i
-    = NewStreamLayout Int Int (Dict Int (Cell i))
+    = NewStreamLayout Int (Dict Int (ColumnDict i))
 
 
 type alias ColumnId =
@@ -29,37 +33,37 @@ type alias LaneId =
     Int
 
 
-
 {--Building layouts --}
 
 
-empty : Int -> StreamLayout i
-empty nrOfLanes =
-    let
-        nrOfColumns =
-            0
-    in
-        NewStreamLayout nrOfLanes nrOfColumns Dict.empty
+empty : StreamLayout i
+empty =
+    NewStreamLayout 0 Dict.empty
 
 
 appendColumn : StreamLayout i -> StreamLayout i
-appendColumn (NewStreamLayout nrOfLanes nrOfColumns data) =
-    NewStreamLayout nrOfLanes (nrOfColumns + 1) data
+appendColumn (NewStreamLayout nrOfColumns data) =
+    NewStreamLayout (nrOfColumns + 1) data
 
 
 appendCell : LaneId -> i -> List Int -> StreamLayout i -> StreamLayout i
-appendCell lane i successors (NewStreamLayout nrOfLanes nrOfColumns data) =
+appendCell lane i successors (NewStreamLayout nrOfColumns data) =
     let
         lastColumn =
             nrOfColumns - 1
 
+        nextColumnDict =
+            Dict.get lastColumn data
+            |> withDefault Dict.empty
+            |> Dict.insert lane (NewCell i successors)
+
         nextData =
-            Dict.insert (lane + nrOfLanes * lastColumn) (NewCell i successors) data
+            Dict.insert lastColumn nextColumnDict data
     in
-        NewStreamLayout nrOfLanes nrOfColumns nextData
+        NewStreamLayout nrOfColumns nextData
 
 
-nrOfColumns (NewStreamLayout _ nrOfColumns _) =
+nrOfColumns (NewStreamLayout nrOfColumns _) =
     nrOfColumns
 
 
@@ -94,36 +98,37 @@ config =
 
 
 newRender : StreamLayout i -> List (Svg m)
-newRender ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) =
+newRender ((NewStreamLayout nrOfColumns data) as layout) =
     (range 0 (nrOfColumns - 1)
         |> List.foldl (renderColumn layout) []
     )
 
 
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
-renderColumn ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column acc =
+renderColumn ((NewStreamLayout nrOfColumns data) as layout) column acc =
     let
         x0 =
             config.columnWidth * column
+
+        lanes =
+            Dict.get column data
+            |> Maybe.withDefault Dict.empty
+            |> Dict.keys
     in
         acc
-            |> diagnostic "column" column "green" ( x0, 0, config.columnWidth, nrOfLanes * config.rowHeight )
-            |> (\acc -> foldl (renderSection layout column) acc (range 0 (nrOfLanes - 1)))
+            |> (\acc -> foldl (renderSection layout column) acc lanes)
 
 
 renderSection : StreamLayout i -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
-renderSection ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane acc =
-    let
-        index =
-            column * nrOfLanes + lane
-    in
-        Dict.get index data
-            |> Maybe.map (\c -> renderCell layout column lane c acc)
-            |> Maybe.withDefault acc
+renderSection ((NewStreamLayout nrOfColumns data) as layout) column lane acc =
+        Dict.get column data
+        |> Maybe.andThen (Dict.get lane)
+        |> Maybe.map (\c -> renderCell layout column lane c acc)
+        |> Maybe.withDefault acc
 
 
 renderCell : StreamLayout i -> Int -> Int -> Cell i -> List (Svg m) -> List (Svg m)
-renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane (NewCell i successors) acc =
+renderCell ((NewStreamLayout nrOfColumns _) as layout) column lane (NewCell i successors) acc =
     let
         bounds =
             ( column * config.columnWidth, lane * config.rowHeight, config.columnWidth - config.connectorWidth, config.laneHeight )
@@ -141,7 +146,7 @@ renderCell ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column lane 
 
 
 newRenderConnections : StreamLayout i -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
-newRenderConnections ((NewStreamLayout nrOfLanes nrOfColumns data) as layout) column laneLeft laneRight acc =
+newRenderConnections ((NewStreamLayout nrOfColumns data) as layout) column laneLeft laneRight acc =
     let
         xRight =
             (column + 1) * config.columnWidth

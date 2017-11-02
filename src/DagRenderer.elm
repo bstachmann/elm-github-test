@@ -17,6 +17,7 @@ type Cell i
     = NewCell i (List Int)
 
 
+-- IMPROVE Check if int-dict works here
 type alias ColumnDict i
     = Dict Int (Cell i)
 

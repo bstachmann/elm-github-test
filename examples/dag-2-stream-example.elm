@@ -34,7 +34,7 @@ main =
 
         (_,layout1) = foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty) g
 
-        layout2 = layout1
+        layout2 = swapCells 3 0 2 layout1
     in
             Html.body []
                 [ Html.text <| "Hello Rendering Dag to Stream Graph!"

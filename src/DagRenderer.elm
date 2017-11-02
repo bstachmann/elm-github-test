@@ -68,6 +68,26 @@ nrOfColumns (NewStreamLayout nrOfColumns _) =
     nrOfColumns
 
 
+{-- Mainipulating Layouts --}
+
+swapCells : Int -> Int -> Int -> StreamLayout i -> StreamLayout i
+swapCells column lane1 lane2 (NewStreamLayout nrOfColumns data as previousLayout) =
+    case Dict.get column data of
+        Nothing
+            -> previousLayout
+        Just colDict
+            ->
+              colDict
+              |> Dict.update lane2 (\_ -> Dict.get lane1 colDict |> Maybe.map (tranposeCell (lane2 - lane1)))
+              |> Dict.update lane1 (\_ -> Dict.get lane2 colDict |> Maybe.map (tranposeCell (lane1 - lane2)))
+              |> (\c -> Dict.update column (\_ -> Just  c) data)
+              |> NewStreamLayout  nrOfColumns
+
+
+tranposeCell : Int ->  Cell i ->  Cell i
+tranposeCell offset (NewCell i succs) =
+    List.map ((+) offset) succs
+    |> NewCell i
 
 {--Rendering to SVG --}
 

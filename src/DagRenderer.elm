@@ -18,9 +18,12 @@ type Cell i
     = NewCell i (List Int)
 
 
+
 -- IMPROVE Check if int-dict works here
-type alias ColumnDict i
-    = Dict Int (Cell i)
+
+
+type alias ColumnDict i =
+    Dict Int (Cell i)
 
 
 type StreamLayout i
@@ -33,6 +36,7 @@ type alias ColumnId =
 
 type alias LaneId =
     Int
+
 
 
 {--Building layouts --}
@@ -56,8 +60,8 @@ appendCell lane i successors (NewStreamLayout nrOfColumns data) =
 
         nextColumnDict =
             Dict.get lastColumn data
-            |> withDefault Dict.empty
-            |> Dict.insert lane (NewCell i successors)
+                |> withDefault Dict.empty
+                |> Dict.insert lane (NewCell i successors)
 
         nextData =
             Dict.insert lastColumn nextColumnDict data
@@ -70,46 +74,51 @@ nrOfColumns (NewStreamLayout nrOfColumns _) =
 
 
 
-{-- Mainipulating Layouts --}
+{--Mainipulating Layouts --}
+
 
 swapLanes : Int -> Int -> StreamLayout i -> StreamLayout i
-swapLanes lane1 lane2 (NewStreamLayout nrOfColumns data as layout) =
+swapLanes lane1 lane2 ((NewStreamLayout nrOfColumns data) as layout) =
     Dict.keys data
-    |> List.foldl (\column acc -> swapCells column lane1 lane2 acc) layout
+        |> List.foldl (swapCells lane1 lane2) layout
+
 
 swapCells : Int -> Int -> Int -> StreamLayout i -> StreamLayout i
-swapCells column lane1 lane2 (NewStreamLayout nrOfColumns data as previousLayout) =
+swapCells lane1 lane2 column ((NewStreamLayout nrOfColumns data) as previousLayout) =
     case Dict.get column data of
-        Nothing
-            -> previousLayout
-        Just colDict
-            ->
-              colDict
-              |> Dict.update lane2 (\_ -> Dict.get lane1 colDict)
-              |> Dict.update lane1 (\_ -> Dict.get lane2 colDict)
-              |> (\c -> Dict.update column (\_ -> Just  c) data)
-              |> Dict.update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
-              |> NewStreamLayout  nrOfColumns
+        Nothing ->
+            previousLayout
+
+        Just colDict ->
+            colDict
+                |> Dict.update lane2 (\_ -> Dict.get lane1 colDict)
+                |> Dict.update lane1 (\_ -> Dict.get lane2 colDict)
+                |> (\c -> Dict.update column (\_ -> Just c) data)
+                |> Dict.update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
+                |> NewStreamLayout nrOfColumns
+
 
 remapSucc : Int -> Int -> Int -> Int
 remapSucc s1 s2 v =
     if v == s1 then
-      s2
-    else
-      if v == s2 then
+        s2
+    else if v == s2 then
         s1
-      else
+    else
         v
 
-remapPreviousColumn : Int  -> Int -> ColumnDict i -> ColumnDict i
+
+remapPreviousColumn : Int -> Int -> ColumnDict i -> ColumnDict i
 remapPreviousColumn lane1 lane2 cd =
     Dict.map (\k (NewCell i succs) -> (NewCell i (List.map (remapSucc lane1 lane2) succs))) cd
 
 
-tranposeCell : Int ->  Cell i ->  Cell i
+tranposeCell : Int -> Cell i -> Cell i
 tranposeCell offset (NewCell i succs) =
     List.map ((+) offset) succs
-    |> NewCell i
+        |> NewCell i
+
+
 
 {--Rendering to SVG --}
 
@@ -155,8 +164,8 @@ renderColumn ((NewStreamLayout nrOfColumns data) as layout) column acc =
 
         lanes =
             Dict.get column data
-            |> Maybe.withDefault Dict.empty
-            |> Dict.keys
+                |> Maybe.withDefault Dict.empty
+                |> Dict.keys
     in
         acc
             |> (\acc -> foldl (renderSection layout column) acc lanes)
@@ -164,7 +173,7 @@ renderColumn ((NewStreamLayout nrOfColumns data) as layout) column acc =
 
 renderSection : StreamLayout i -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
 renderSection ((NewStreamLayout nrOfColumns data) as layout) column lane acc =
-        Dict.get column data
+    Dict.get column data
         |> Maybe.andThen (Dict.get lane)
         |> Maybe.map (\c -> renderCell layout column lane c acc)
         |> Maybe.withDefault acc

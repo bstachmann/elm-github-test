@@ -47,7 +47,14 @@ empty =
 
 appendColumn : StreamLayout i -> StreamLayout i
 appendColumn (NewStreamLayout nrOfColumns data) =
-    NewStreamLayout (nrOfColumns + 1) data
+    let
+        nextData =
+            Dict.insert (Dict.size data) Dict.empty data
+
+        var =
+            NewStreamLayout (Dict.size nextData) nextData
+    in
+        var
 
 
 appendCell : LaneId -> i -> List Int -> StreamLayout i -> StreamLayout i

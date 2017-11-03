@@ -78,10 +78,25 @@ swapCells column lane1 lane2 (NewStreamLayout nrOfColumns data as previousLayout
         Just colDict
             ->
               colDict
-              |> Dict.update lane2 (\_ -> Dict.get lane1 colDict |> Maybe.map (tranposeCell (lane2 - lane1)))
-              |> Dict.update lane1 (\_ -> Dict.get lane2 colDict |> Maybe.map (tranposeCell (lane1 - lane2)))
+              |> Dict.update lane2 (\_ -> Dict.get lane1 colDict)
+              |> Dict.update lane1 (\_ -> Dict.get lane2 colDict)
               |> (\c -> Dict.update column (\_ -> Just  c) data)
+              |> Dict.update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
               |> NewStreamLayout  nrOfColumns
+
+remapSucc : Int -> Int -> Int -> Int
+remapSucc s1 s2 v =
+    if v == s1 then
+      s2
+    else
+      if v == s2 then
+        s1
+      else
+        v
+
+remapPreviousColumn : Int  -> Int -> ColumnDict i -> ColumnDict i
+remapPreviousColumn lane1 lane2 cd =
+    Dict.map (\k (NewCell i succs) -> (NewCell i (List.map (remapSucc lane1 lane2) succs))) cd
 
 
 tranposeCell : Int ->  Cell i ->  Cell i

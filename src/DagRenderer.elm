@@ -1,7 +1,7 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
-import Dict exposing (Dict)
+import Dict exposing (Dict, insert)
 import List exposing (append, concatMap, drop, foldl, head, map, range)
 import Maybe exposing (withDefault)
 import Set
@@ -63,15 +63,14 @@ appendCell lane i successors (NewStreamLayout data) =
         newCell =
             (NewCell i successors)
 
-        nextColumnDict =
-            Dict.get lastColumn data
+        updateColumnDict c =
+            c
                 |> withDefault Dict.empty
-                |> Dict.insert lane newCell
-
-        nextData =
-            Dict.insert lastColumn nextColumnDict data
+                |> insert lane newCell
+                |> Just
     in
-        NewStreamLayout nextData
+        NewStreamLayout <|
+            Dict.update lastColumn (updateColumnDict) data
 
 
 

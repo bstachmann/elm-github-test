@@ -60,10 +60,13 @@ appendCell lane i successors (NewStreamLayout data) =
         lastColumn =
             Dict.size data - 1
 
+        newCell =
+            (NewCell i successors)
+
         nextColumnDict =
             Dict.get lastColumn data
                 |> withDefault Dict.empty
-                |> Dict.insert lane (NewCell i successors)
+                |> Dict.insert lane newCell
 
         nextData =
             Dict.insert lastColumn nextColumnDict data

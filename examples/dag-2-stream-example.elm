@@ -36,11 +36,9 @@ main =
 
         layout2 =
             layout1
-            |> swapCells 0 5 1
-            |> swapCells 1 5 1
-            |> swapCells 3 1 2
-            |> swapCells 3 0 2
-            |> swapCells 4 0 1
+            -- |> swapLanes 0 1
+            |> swapLanes 4 2
+
     in
             Html.body []
                 [ Html.text <| "Hello Rendering Dag to Stream Graph!"

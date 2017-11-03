@@ -3,6 +3,7 @@ module DagRenderer exposing (..)
 import Array exposing (Array)
 import Color exposing (..)
 import Dict exposing (Dict)
+import Html exposing (datalist)
 import List exposing (append, concatMap, drop, foldl, head, map, range)
 import Maybe exposing (withDefault)
 import Set
@@ -68,7 +69,13 @@ nrOfColumns (NewStreamLayout nrOfColumns _) =
     nrOfColumns
 
 
+
 {-- Mainipulating Layouts --}
+
+swapLanes : Int -> Int -> StreamLayout i -> StreamLayout i
+swapLanes lane1 lane2 (NewStreamLayout nrOfColumns data as layout) =
+    Dict.keys data
+    |> List.foldl (\column acc -> swapCells column lane1 lane2 acc) layout
 
 swapCells : Int -> Int -> Int -> StreamLayout i -> StreamLayout i
 swapCells column lane1 lane2 (NewStreamLayout nrOfColumns data as previousLayout) =

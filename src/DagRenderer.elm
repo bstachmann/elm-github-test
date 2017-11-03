@@ -1,7 +1,7 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
-import Dict exposing (Dict, insert)
+import Dict exposing (Dict, get, insert, update)
 import List exposing (append, concatMap, drop, foldl, head, map, range)
 import Maybe exposing (withDefault)
 import Set
@@ -100,10 +100,10 @@ swapCells lane1 lane2 column ((NewStreamLayout columnToColdict) as previousLayou
 
         Just colDict ->
             colDict
-                |> Dict.update lane2 (\_ -> Dict.get lane1 colDict)
-                |> Dict.update lane1 (\_ -> Dict.get lane2 colDict)
-                |> (\c -> Dict.update column (\_ -> Just c) columnToColdict)
-                |> Dict.update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
+                |> update lane2 (\_ -> get lane1 colDict)
+                |> update lane1 (\_ -> get lane2 colDict)
+                |> (\c -> update column (\_ -> Just c) columnToColdict)
+                |> update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
                 |> NewStreamLayout
 
 

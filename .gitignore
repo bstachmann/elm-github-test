@@ -40,3 +40,6 @@ compiled/
 
 ### Project Stuff ###
 GithubApiToken.elm
+
+### Node ###
+node_modules/

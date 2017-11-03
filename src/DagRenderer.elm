@@ -107,22 +107,22 @@ swapCells lane1 lane2 column ((NewStreamLayout columnToColdict) as previousLayou
             in
                 columnToColdict
                     |> insert column nextColumnDict
-                    |> update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
+                    |> update (column - 1) (Maybe.map (remapLinksInColumnToTheLeft lane1 lane2))
                     |> NewStreamLayout
 
 
 remapSucc : Int -> Int -> Int -> Int
-remapSucc s1 s2 v =
-    if v == s1 then
-        s2
-    else if v == s2 then
-        s1
+remapSucc lane1 lane2 lane =
+    if lane == lane1 then
+        lane2
+    else if lane == lane2 then
+        lane1
     else
-        v
+        lane
 
 
-remapPreviousColumn : Int -> Int -> ColumnDict i -> ColumnDict i
-remapPreviousColumn lane1 lane2 cd =
+remapLinksInColumnToTheLeft : Int -> Int -> ColumnDict i -> ColumnDict i
+remapLinksInColumnToTheLeft lane1 lane2 cd =
     Dict.map (\k (NewCell i succs) -> (NewCell i (List.map (remapSucc lane1 lane2) succs))) cd
 
 

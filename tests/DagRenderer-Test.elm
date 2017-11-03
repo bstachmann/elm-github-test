@@ -18,5 +18,5 @@ testSomeThing : Test
 testSomeThing =
     describe "Some Thing"
         [ test "this should succeed" <|
-                \() -> Expect.equal "blah" "blah"
+            \() -> Expect.equal "blah" "blah"
         ]

@@ -1,4 +1,6 @@
 module GithubApiToken exposing (apiToken)
 
+
 apiToken : String
-apiToken = "4711"
+apiToken =
+    "4711"

@@ -7,7 +7,6 @@ import DagRenderer exposing (..)
 import Dict
 
 
-
 type Msg
     = Nothing
 

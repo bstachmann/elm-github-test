@@ -1,6 +1,5 @@
 module HtmlRunnerExample exposing (..)
 
-
 import Char
 import Expect
 import Fuzz exposing (..)

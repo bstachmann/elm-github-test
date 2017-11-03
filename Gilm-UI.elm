@@ -1,6 +1,5 @@
 module Gilm exposing (..)
 
-
 import List
 import Html
 import Svg exposing (..)
@@ -16,20 +15,28 @@ main =
         }
 
 
-type alias Model = String
+type alias Model =
+    String
 
-type Msg = Nothing
+
+type Msg
+    = Nothing
+
 
 view : Model -> Html.Html Msg
 view model =
     Html.body []
-        [ Html.h1 [] [text ("Model: " ++ model)]
-        , svg [ version "1.1", x "0", y "0", viewBox "0 0 323.141 322.95"]
-            <| List.append
+        [ Html.h1 [] [ text ("Model: " ++ model) ]
+        , svg [ version "1.1", x "0", y "0", viewBox "0 0 323.141 322.95" ] <|
+            List.append
                 [ polygon [ fill "#F0AD00", points "161.649,152.782 231.514,82.916 91.783,82.916" ] []
                 , polygon [ fill "#7FD13B", points "8.867,0 79.241,70.375 232.213,70.375 161.838,0" ] []
                 , rect
-                    [ fill "#7FD13B", x "192.99", y "107.392", width "107.676", height "108.167"
+                    [ fill "#7FD13B"
+                    , x "192.99"
+                    , y "107.392"
+                    , width "107.676"
+                    , height "108.167"
                     , transform "matrix(0.7071 0.7071 -0.7071 0.7071 186.4727 -127.2386)"
                     ]
                     []
@@ -44,7 +51,7 @@ view model =
 
 graph : Model -> List (Svg Msg)
 graph model =
-    [ rect [fill "#000000", x "50", y "50", width "100", height "25"] []
+    [ rect [ fill "#000000", x "50", y "50", width "100", height "25" ] []
     ]
 
 

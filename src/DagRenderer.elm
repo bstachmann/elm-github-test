@@ -46,7 +46,7 @@ empty =
 
 
 appendColumn : StreamLayout i -> StreamLayout i
-appendColumn (NewStreamLayout nrOfColumns data) =
+appendColumn (NewStreamLayout egal data) =
     let
         nextData =
             Dict.insert (Dict.size data) Dict.empty data
@@ -74,6 +74,7 @@ appendCell lane i successors (NewStreamLayout nrOfColumns data) =
         NewStreamLayout nrOfColumns nextData
 
 
+nrOfColumns : StreamLayout i -> Int
 nrOfColumns (NewStreamLayout _ data) =
     Dict.size data
 
@@ -155,8 +156,8 @@ config =
 
 
 newRender : StreamLayout i -> List (Svg m)
-newRender ((NewStreamLayout nrOfColumns data) as layout) =
-    (range 0 (nrOfColumns - 1)
+newRender ((NewStreamLayout egal data) as layout) =
+    (range 0 ((nrOfColumns layout) - 1)
         |> List.foldl (renderColumn layout) []
     )
 

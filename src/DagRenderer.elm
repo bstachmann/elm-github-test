@@ -50,11 +50,8 @@ appendColumn (NewStreamLayout data) =
     let
         nextData =
             Dict.insert (Dict.size data) Dict.empty data
-
-        var =
-            NewStreamLayout nextData
     in
-        var
+        NewStreamLayout nextData
 
 
 appendCell : LaneId -> i -> List Int -> StreamLayout i -> StreamLayout i

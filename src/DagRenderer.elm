@@ -1,9 +1,7 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
-import Color exposing (..)
 import Dict exposing (Dict)
-import Html exposing (datalist)
 import List exposing (append, concatMap, drop, foldl, head, map, range)
 import Maybe exposing (withDefault)
 import Set

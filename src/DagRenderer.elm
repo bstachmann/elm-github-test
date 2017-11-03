@@ -99,12 +99,16 @@ swapCells lane1 lane2 column ((NewStreamLayout columnToColdict) as previousLayou
             previousLayout
 
         Just colDict ->
-            colDict
-                |> update lane2 (\_ -> get lane1 colDict)
-                |> update lane1 (\_ -> get lane2 colDict)
-                |> (\c -> update column (\_ -> Just c) columnToColdict)
-                |> update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
-                |> NewStreamLayout
+            let
+                nextColumnDict =
+                    colDict
+                        |> update lane2 (\_ -> get lane1 colDict)
+                        |> update lane1 (\_ -> get lane2 colDict)
+            in
+                nextColumnDict
+                    |> (\c -> update column (\_ -> Just c) columnToColdict)
+                    |> update (column - 1) (Maybe.map (remapPreviousColumn lane1 lane2))
+                    |> NewStreamLayout
 
 
 remapSucc : Int -> Int -> Int -> Int

@@ -71,6 +71,10 @@ appendCell lane i successors (NewStreamLayout data) =
         NewStreamLayout nextData
 
 
+
+{--Access --}
+
+
 nrOfColumns : StreamLayout i -> Int
 nrOfColumns (NewStreamLayout data) =
     Dict.size data

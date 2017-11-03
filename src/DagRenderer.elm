@@ -61,7 +61,7 @@ appendCell : LaneId -> i -> List Int -> StreamLayout i -> StreamLayout i
 appendCell lane i successors (NewStreamLayout nrOfColumns data) =
     let
         lastColumn =
-            nrOfColumns - 1
+            Dict.size data - 1
 
         nextColumnDict =
             Dict.get lastColumn data
@@ -74,8 +74,8 @@ appendCell lane i successors (NewStreamLayout nrOfColumns data) =
         NewStreamLayout nrOfColumns nextData
 
 
-nrOfColumns (NewStreamLayout nrOfColumns _) =
-    nrOfColumns
+nrOfColumns (NewStreamLayout _ data) =
+    Dict.size data
 
 
 

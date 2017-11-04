@@ -1,13 +1,13 @@
 module Main exposing (main)
 
-import Dag exposing (Dag, Node, empty, node, mapNodesBfs, mapNodes, getNodeId, mapNodesByRank, foldlByRank)
-import Html exposing (Html)
-import List exposing (intersperse, map)
+import Dag exposing (Dag, Node, empty, foldlByRank, getNodeId, mapNodes, mapNodesBfs, mapNodesByRank, node)
 import DagRenderer exposing (..)
 import Dict
+import Html exposing (Html)
+import List exposing (concatMap, intersperse, map, reverse)
+import Set
 import Svg
 import Svg.Attributes exposing (..)
-import Set
 
 
 type Msg
@@ -33,30 +33,42 @@ main =
         ( _, layout1 ) =
             foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty ) g
 
-        layout2 =
-            layout1
-                -- |> swapLanes 0 1
-                |> swapLanes 4 2
-    in
-        Html.body []
-            [ Html.text <| "Hello Rendering Dag to Stream Graph!"
-            , Html.br [] []
-
-            -- , Html.text <| "Layout: " ++ (toString sample)
-            , Html.text <| "config: " ++ (toString config)
-            , Html.br [] []
-            , Svg.svg
-                [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "400px", viewBox "0 0 1280px 2024px" ]
-              <|
-                DagRenderer.newRender layout1
-            , Html.br [] []
-            , Html.text <| "Achtung: "
-            , Html.br [] []
-            , Svg.svg
-                [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "400px", viewBox "0 0 1280px 2024px" ]
-              <|
-                DagRenderer.newRender layout2
+        ops =
+            [ SwapLanes 0 1
+            , SwapLanes 4 2
+            , SwapLanes 0 3
+            , CompressColumns
             ]
+
+        ( layout, layouts ) =
+            ops
+                |> List.foldl
+                    (\op ( l, ls ) ->
+                        let
+                            newLayout =
+                                apply op l
+                        in
+                            ( newLayout, ( toString op, newLayout ) :: ls )
+                    )
+                    ( layout1, [ ( "", layout1 ) ] )
+
+        htmls =
+            layouts
+                |> concatMap
+                    (\( desc, layout ) ->
+                        [ Html.br [] []
+                        , Html.text <| "Graph: " ++ desc
+                        , Html.br [] []
+                        , Svg.svg
+                            [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "400px", viewBox "0 0 1280px 2024px" ]
+                          <|
+                            DagRenderer.newRender layout
+                        ]
+                    )
+    in
+        Html.body [] <|
+            Html.text "Hello Rendering Dag to Stream Graph!"
+                :: htmls
 
 
 buildStream : IdToLaneMapping String -> Dag String String -> Int -> Node String String -> ( Set.Set String, StreamLayout String ) -> ( Set.Set String, StreamLayout String )

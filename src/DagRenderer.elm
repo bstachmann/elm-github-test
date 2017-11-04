@@ -75,6 +75,30 @@ appendCell lane i successors (NewStreamLayout columnToColdict) =
 
 
 
+{--a DSL for layout manipulation --}
+
+
+type Dsl i
+    = CompressColumns
+    | SwapCells Int Int Int
+    | SwapLanes Int Int
+
+
+apply : Dsl i -> StreamLayout i -> StreamLayout i
+apply command layout =
+    layout
+        |> case command of
+            CompressColumns ->
+                compressColumns
+
+            SwapCells l1 l2 column ->
+                swapCells l1 l2 column
+
+            SwapLanes l1 l2 ->
+                swapLanes l1 l2
+
+
+
 {--Access --}
 
 

@@ -1,8 +1,9 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
-import Dict exposing (Dict, get, insert, update)
-import List exposing (append, concatMap, drop, foldl, head, map, range)
+import Dict exposing (Dict, get, insert, keys, update)
+import List exposing (append, concatMap, drop, foldl, head, indexedMap, map, range)
+import List.Extra
 import Maybe exposing (withDefault)
 import Set
 import Svg exposing (..)
@@ -130,6 +131,28 @@ tranposeCell : Int -> Cell i -> Cell i
 tranposeCell offset (NewCell i succs) =
     List.map ((+) offset) succs
         |> NewCell i
+
+
+compressColumns : StreamLayout i -> StreamLayout i
+compressColumns ((NewStreamLayout columnToColdict) as layout) =
+    keys columnToColdict
+        |> foldl (\c -> compressColumn c) layout
+
+
+swappingPairs : Maybe (ColumnDict i) -> List ( Int, Int )
+swappingPairs columnDict =
+    columnDict
+        |> withDefault Dict.empty
+        -- todo error handling
+        |> keys
+        -- IMPROVE filter idempotet swaps
+        |> indexedMap (\i k -> ( i, k ))
+
+
+compressColumn : Int -> StreamLayout i -> StreamLayout i
+compressColumn column ((NewStreamLayout columnToColdict) as layout) =
+    swappingPairs (get column columnToColdict)
+        |> List.foldl (\( i, k ) -> swapCells i k column) layout
 
 
 

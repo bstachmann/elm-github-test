@@ -2,8 +2,7 @@ module DagRenderer exposing (..)
 
 import Array exposing (Array)
 import Dict exposing (Dict, get, insert, keys, update)
-import List exposing (append, concatMap, drop, foldl, head, indexedMap, map, range)
-import List.Extra
+import List exposing (append, concatMap, drop, filterMap, foldl, head, indexedMap, map, maximum, range)
 import Maybe exposing (withDefault)
 import Set
 import Svg exposing (..)
@@ -105,6 +104,14 @@ apply command layout =
 nrOfColumns : StreamLayout i -> Int
 nrOfColumns (NewStreamLayout columnToColdict) =
     Dict.size columnToColdict
+
+
+nrOfLanes : StreamLayout i -> Int
+nrOfLanes (NewStreamLayout columnToColdict) =
+    Dict.values columnToColdict
+        |> filterMap (keys >> maximum)
+        |> maximum
+        |> withDefault 0
 
 
 

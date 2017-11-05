@@ -6,6 +6,7 @@ import Dict
 import Html exposing (Html)
 import List exposing (concatMap, intersperse, map, reverse)
 import Set
+import String exposing (append)
 import Svg
 import Svg.Attributes exposing (..)
 
@@ -56,14 +57,18 @@ main =
             layouts
                 |> concatMap
                     (\( desc, layout ) ->
-                        [ Html.br [] []
-                        , Html.text <| "Graph: " ++ desc
-                        , Html.br [] []
-                        , Svg.svg
-                            [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height "400px", viewBox "0 0 1280px 2024px" ]
-                          <|
-                            DagRenderer.newRender layout
-                        ]
+                        let
+                            h =
+                                nrOfLanes layout |> (+) 1 |> (*) config.rowHeight |> toString |> (\s -> s ++ "px")
+                        in
+                            [ Html.br [] []
+                            , Html.text <| "Graph: " ++ desc ++ " / " ++ h
+                            , Html.br [] []
+                            , Svg.svg
+                                [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height h, viewBox ("0 0 1280px " ++ h) ]
+                              <|
+                                DagRenderer.newRender layout
+                            ]
                     )
     in
         Html.body [] <|

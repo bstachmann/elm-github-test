@@ -7,6 +7,7 @@ import Html exposing (..)
 import Maybe exposing (Maybe(Nothing))
 
 
+main : Program Never Model Msg
 main =
     Html.program
         { init = init Nothing

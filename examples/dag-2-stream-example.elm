@@ -54,21 +54,7 @@ main =
 
         htmls =
             layouts
-                |> concatMap
-                    (\( desc, layout ) ->
-                        let
-                            h =
-                                nrOfLanes layout |> (+) 1 |> (*) config.rowHeight |> toString |> (\s -> s ++ "px")
-                        in
-                            [ Html.br [] []
-                            , Html.text <| "Graph: " ++ desc ++ " / " ++ h
-                            , Html.br [] []
-                            , Svg.svg
-                                [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height h, viewBox ("0 0 1280px " ++ h) ]
-                              <|
-                                DagRenderer.newRender layout
-                            ]
-                    )
+                |> concatMap flowGraphWithHeader
     in
         Html.body [] <|
             Html.text "Hello Rendering Dag to Stream Graph!"

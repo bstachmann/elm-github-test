@@ -2,6 +2,7 @@ module DagRenderer exposing (..)
 
 import Array exposing (Array)
 import Dict exposing (Dict, get, insert, keys, update)
+import Html exposing (Html, br, text)
 import List exposing (append, concatMap, drop, filterMap, foldl, head, indexedMap, map, maximum, range)
 import Maybe exposing (withDefault)
 import Set
@@ -216,6 +217,22 @@ config =
     }
 
 
+flowGraphWithHeader : ( String, StreamLayout i ) -> List (Html m)
+flowGraphWithHeader ( desc, layout ) =
+    let
+        h =
+            nrOfLanes layout |> (+) 1 |> (*) config.rowHeight |> toString |> (\s -> s ++ "px")
+    in
+        [ Html.br [] []
+        , Html.text <| "Graph: " ++ desc ++ " / " ++ h
+        , Html.br [] []
+        , Svg.svg
+            [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height h, viewBox ("0 0 1280px " ++ h) ]
+          <|
+            newRender layout
+        ]
+
+
 newRender : StreamLayout i -> List (Svg m)
 newRender ((NewStreamLayout columnToColdict) as layout) =
     (range 0 ((nrOfColumns layout) - 1)
@@ -258,7 +275,7 @@ renderCell ((NewStreamLayout _) as layout) column lane (NewCell i successors) ac
                 , y (toString (lane * config.rowHeight + 14))
                 , fill "blue"
                 ]
-                [ text <| toString i ]
+                [ Svg.text <| toString i ]
             :: acc
             |> (\acc -> List.foldl (newRenderConnections layout column lane) acc successors)
             |> diagnostic "cell" lane "red" bounds
@@ -360,7 +377,7 @@ diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> 
 diagnostic t msg color_ (( x0, y0, _, _ ) as bounds) acc =
     if Set.member t config.diagnosticsFor then
         rect ([ stroke color_, strokeOpacity "0.5", fill "none" ] |> inBox bounds) []
-            :: text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_, fillOpacity "0.5" ] [ text (toString msg) ]
+            :: Svg.text_ [ x (toString (x0 + 2)), y (toString (y0 + 12)), fill color_, fillOpacity "0.5" ] [ Svg.text (toString msg) ]
             :: acc
     else
         acc
@@ -454,5 +471,5 @@ renderConnection section pred =
 render : Section -> List (Svg m)
 render section =
     rect [ x (toString section.x0), y (toString section.lane.y0), width (toString sectionWidth), height (toString laneHeight), fill section.lane.color, fillOpacity "0.7" ] []
-        :: text_ [ x (toString section.x0), y (toString section.lane.y1) ] [ text <| "<" ++ section.id ++ ">" ]
+        :: text_ [ x (toString section.x0), y (toString section.lane.y1) ] [ Svg.text <| "<" ++ section.id ++ ">" ]
         :: (concatMap (renderConnection section) <| List.reverse <| section.predecessor_lanes)

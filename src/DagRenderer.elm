@@ -1,6 +1,7 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
+import Dag exposing (Dag, Node)
 import Dict exposing (Dict, get, insert, keys, update)
 import Html exposing (Html, br, text)
 import List exposing (append, concatMap, drop, filterMap, foldl, head, indexedMap, map, maximum, range)
@@ -390,6 +391,70 @@ inBox ( x0, y0, w, h ) acc =
         :: width (toString w)
         :: height (toString h)
         :: acc
+
+
+
+{--Dag to Layout helpers --}
+
+
+buildStream : IdToLaneMapping String -> Dag String String -> Int -> Node String String -> ( Set.Set String, StreamLayout String ) -> ( Set.Set String, StreamLayout String )
+buildStream idToLane g column node ( openNodeIds, layout ) =
+    let
+        l =
+            if column >= (nrOfColumns layout) - 1 then
+                -- doppelt ?
+                openNodeIds |> Set.foldl (\i acc -> appendCell (laneFor i idToLane |> Maybe.withDefault 0) i [ (laneFor i idToLane |> Maybe.withDefault 0) ] acc) (appendColumn layout)
+            else
+                layout
+
+        nodeId =
+            Dag.getNodeId g node
+
+        -- improve evil filter
+        succesorNodeIds =
+            Dag.successors node |> List.map (Dag.getNodeId g)
+
+        successorLaneIds =
+            succesorNodeIds |> List.filterMap (\i -> laneFor i idToLane)
+
+        nextOpenIds =
+            Set.remove nodeId openNodeIds
+                |> Set.union (Set.fromList succesorNodeIds)
+
+        nextLayout =
+            appendCell (Maybe.withDefault 0 <| laneFor nodeId idToLane) nodeId successorLaneIds l
+    in
+        ( nextOpenIds, nextLayout )
+
+
+type IdToLaneMapping comparable
+    = EmptyMapping
+    | NewMapping Int (Dict.Dict comparable Int)
+
+
+emptyMapping : IdToLaneMapping comparable
+emptyMapping =
+    EmptyMapping
+
+
+mapIdToLane : comparable -> IdToLaneMapping comparable -> IdToLaneMapping comparable
+mapIdToLane comparable m =
+    case m of
+        EmptyMapping ->
+            NewMapping 0 <| Dict.singleton comparable 0
+
+        NewMapping maxId previousDict ->
+            NewMapping (maxId + 1) <| Dict.insert comparable (maxId + 1) previousDict
+
+
+laneFor : comparable -> IdToLaneMapping comparable -> Maybe Int
+laneFor i m =
+    case m of
+        NewMapping _ d ->
+            Dict.get i d
+
+        EmptyMapping ->
+            Maybe.Nothing
 
 
 

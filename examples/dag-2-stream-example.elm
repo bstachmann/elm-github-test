@@ -6,8 +6,6 @@ import Dict
 import Html exposing (Html)
 import List exposing (concatMap, intersperse, map, reverse)
 import Set
-import Svg
-import Svg.Attributes exposing (..)
 
 
 type Msg

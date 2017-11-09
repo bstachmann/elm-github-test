@@ -1,8 +1,12 @@
 module DagManipulationUI exposing (..)
 
 import Bootstrap.Grid as Grid
+import Dag exposing (Dag, empty, node)
+import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
 import Html exposing (Html, a, div, h5, text)
 import Html.Attributes exposing (attribute, class, href, id)
+import List.Extra
+import Maybe exposing (withDefault)
 
 
 main : Program Never Model Msg
@@ -16,7 +20,9 @@ main =
 
 
 type alias Model =
-    {}
+    { dag : Dag String String
+    , layouts : List (StreamLayout String)
+    }
 
 
 type Msg
@@ -25,7 +31,24 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    let
+        g =
+            Dag.empty identity
+                |> node "A" []
+                |> node "B" [ "A" ]
+                |> node "C" [ "B" ]
+                |> node "D" [ "A" ]
+                |> node "E" [ "C", "D" ]
+                |> node "F" [ "C" ]
+
+        layout1 =
+            toFlowLayout g
+    in
+        ( { dag = g
+          , layouts = [ layout1 ]
+          }
+        , Cmd.none
+        )
 
 
 view : Model -> Html Msg
@@ -61,7 +84,10 @@ view model =
                     , attribute "aria-labelledby" "headingOne"
                     , attribute "data-parent" "#accordion"
                     ]
-                    [ div [ class "card-body" ] [ text "egal" ] ]
+                    [ div
+                        [ class "card-body" ]
+                        (flowGraphWithHeader ( "Moin", (List.Extra.getAt 0 model.layouts |> withDefault DagRenderer.empty) ))
+                    ]
                 ]
             ]
         ]

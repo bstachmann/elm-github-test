@@ -2,10 +2,8 @@ module Main exposing (main)
 
 import Dag exposing (Dag, Node, empty, foldlByRank, getNodeId, mapNodes, mapNodesBfs, mapNodesByRank, node)
 import DagRenderer exposing (..)
-import Dict
 import Html exposing (Html)
 import List exposing (concatMap, intersperse, map, reverse)
-import Set
 
 
 type Msg
@@ -24,12 +22,8 @@ main =
                 |> node "E" [ "C", "D" ]
                 |> node "F" [ "C" ]
 
-        idToLane =
-            Dag.mapNodes (Dag.getNodeId g) g
-                |> List.foldl mapIdToLane emptyMapping
-
-        ( _, layout1 ) =
-            foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty ) g
+        layout1 =
+            toFlowLayout g
 
         ops =
             [ SwapLanes 0 1
@@ -57,3 +51,16 @@ main =
         Html.body [] <|
             Html.text "Hello Rendering Dag to Stream Graph!"
                 :: htmls
+
+
+toFlowLayout : Dag String String -> StreamLayout String
+toFlowLayout g =
+    let
+        idToLane =
+            Dag.mapNodes (Dag.getNodeId g) g
+                |> List.foldl mapIdToLane emptyMapping
+
+        ( _, layout ) =
+            foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty ) g
+    in
+        layout

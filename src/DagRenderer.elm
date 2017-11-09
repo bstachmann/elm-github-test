@@ -1,7 +1,7 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
-import Dag exposing (Dag, Node)
+import Dag exposing (Dag, Node, foldlByRank)
 import Dict exposing (Dict, get, insert, keys, update)
 import Html exposing (Html, br, text)
 import List exposing (append, concatMap, drop, filterMap, foldl, head, indexedMap, map, maximum, range)
@@ -395,6 +395,19 @@ inBox ( x0, y0, w, h ) acc =
 
 
 {--Dag to Layout helpers --}
+
+
+toFlowLayout : Dag String String -> StreamLayout String
+toFlowLayout g =
+    let
+        idToLane =
+            Dag.mapNodes (Dag.getNodeId g) g
+                |> List.foldl mapIdToLane emptyMapping
+
+        ( _, layout ) =
+            foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, empty ) g
+    in
+        layout
 
 
 buildStream : IdToLaneMapping String -> Dag String String -> Int -> Node String String -> ( Set.Set String, StreamLayout String ) -> ( Set.Set String, StreamLayout String )

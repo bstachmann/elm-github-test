@@ -51,16 +51,3 @@ main =
         Html.body [] <|
             Html.text "Hello Rendering Dag to Stream Graph!"
                 :: htmls
-
-
-toFlowLayout : Dag String String -> StreamLayout String
-toFlowLayout g =
-    let
-        idToLane =
-            Dag.mapNodes (Dag.getNodeId g) g
-                |> List.foldl mapIdToLane emptyMapping
-
-        ( _, layout ) =
-            foldlByRank 0 (buildStream idToLane g) ( Dag.rootIds g, DagRenderer.empty ) g
-    in
-        layout

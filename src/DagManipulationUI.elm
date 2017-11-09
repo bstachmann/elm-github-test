@@ -59,36 +59,39 @@ view model =
             [ id "accordion"
             , attribute "role" "tablist"
             ]
-            [ div
-                [ class "card" ]
-                [ div
-                    [ class "card-header"
-                    , attribute "role" "tab"
-                    , id "headingOne"
+            [ flowGraphCard (flowGraphWithHeader ( "Moin", (List.Extra.getAt 0 model.layouts |> withDefault DagRenderer.empty) )) ]
+        ]
+
+
+flowGraphCard graphAsHtml =
+    div
+        [ class "card" ]
+        [ div
+            [ class "card-header"
+            , attribute "role" "tab"
+            , id "headingOne"
+            ]
+            [ h5
+                [ class "mb-0" ]
+                [ a
+                    [ attribute "data-toggle" "collapse"
+                    , href "#collapseOne"
+                    , attribute "aria-expanded" "true"
+                    , attribute "aria-controls" "collapseOne"
                     ]
-                    [ h5
-                        [ class "mb-0" ]
-                        [ a
-                            [ attribute "data-toggle" "collapse"
-                            , href "#collapseOne"
-                            , attribute "aria-expanded" "true"
-                            , attribute "aria-controls" "collapseOne"
-                            ]
-                            [ text "Collapsible Group Item #1" ]
-                        ]
-                    ]
-                , div
-                    [ id "collapseOne"
-                    , class "collapse show"
-                    , attribute "role" "tabpanel"
-                    , attribute "aria-labelledby" "headingOne"
-                    , attribute "data-parent" "#accordion"
-                    ]
-                    [ div
-                        [ class "card-body" ]
-                        (flowGraphWithHeader ( "Moin", (List.Extra.getAt 0 model.layouts |> withDefault DagRenderer.empty) ))
-                    ]
+                    [ text "Collapsible Group Item #1" ]
                 ]
+            ]
+        , div
+            [ id "collapseOne"
+            , class "collapse show"
+            , attribute "role" "tabpanel"
+            , attribute "aria-labelledby" "headingOne"
+            , attribute "data-parent" "#accordion"
+            ]
+            [ div
+                [ class "card-body" ]
+                graphAsHtml
             ]
         ]
 

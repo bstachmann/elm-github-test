@@ -5,6 +5,7 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
 import Html exposing (Html, a, div, h5, text)
 import Html.Attributes exposing (attribute, class, href, id)
+import List exposing (indexedMap)
 
 
 main : Program Never Model Msg
@@ -51,6 +52,7 @@ init =
           , layouts =
                 [ { layout = layout1 }
                 , { layout = layout1 }
+                , { layout = layout1 }
                 ]
           }
         , Cmd.none
@@ -59,14 +61,20 @@ init =
 
 view : Model -> Html Msg
 view model =
-    Grid.container []
-        [ Grid.row [] [ Grid.col [] [ text "Moin!!!" ] ]
-        , div
-            [ id "accordion"
-            , attribute "role" "tablist"
+    Grid.container
+        []
+        [ Grid.row
+            []
+            [ Grid.col
+                []
+                [ div
+                    [ id "accordion"
+                    , attribute "role" "tablist"
+                    ]
+                  <|
+                    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ( "hallo", l.layout ))) model.layouts
+                ]
             ]
-          <|
-            List.indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ( "hallo", l.layout ))) model.layouts
         ]
 
 

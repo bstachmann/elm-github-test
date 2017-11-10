@@ -5,7 +5,6 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
 import Html exposing (Html, a, div, h5, text)
 import Html.Attributes exposing (attribute, class, href, id)
-import Svg.Attributes exposing (to)
 
 
 main : Program Never Model Msg

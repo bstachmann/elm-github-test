@@ -45,7 +45,7 @@ init =
             toFlowLayout g
     in
         ( { dag = g
-          , layouts = [ layout1 ]
+          , layouts = [ layout1, layout1 ]
           }
         , Cmd.none
         )
@@ -59,10 +59,12 @@ view model =
             [ id "accordion"
             , attribute "role" "tablist"
             ]
-            [ flowGraphCard (flowGraphWithHeader ( "Moin", (List.Extra.getAt 0 model.layouts |> withDefault DagRenderer.empty) )) ]
+          <|
+            List.map (\l -> flowGraphCard (flowGraphWithHeader ( "hallo", l ))) model.layouts
         ]
 
 
+flowGraphCard : List (Html msg) -> Html msg
 flowGraphCard graphAsHtml =
     div
         [ class "card" ]

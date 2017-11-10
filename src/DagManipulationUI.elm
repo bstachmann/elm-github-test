@@ -19,12 +19,17 @@ main =
 
 type alias Model =
     { dag : Dag String String
-    , layouts : List (StreamLayout String)
+    , layouts : List (Transformation String)
     }
 
 
 type Msg
     = Nothing
+
+
+type alias Transformation i =
+    { layout : StreamLayout i
+    }
 
 
 init : ( Model, Cmd Msg )
@@ -43,7 +48,10 @@ init =
             toFlowLayout g
     in
         ( { dag = g
-          , layouts = [ layout1, layout1 ]
+          , layouts =
+                [ { layout = layout1 }
+                , { layout = layout1 }
+                ]
           }
         , Cmd.none
         )
@@ -58,7 +66,7 @@ view model =
             , attribute "role" "tablist"
             ]
           <|
-            List.map (\l -> flowGraphCard (flowGraphWithHeader ( "hallo", l ))) model.layouts
+            List.map (\l -> flowGraphCard (flowGraphWithHeader ( "hallo", l.layout ))) model.layouts
         ]
 
 

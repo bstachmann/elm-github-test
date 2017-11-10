@@ -5,6 +5,7 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
 import Html exposing (Html, a, div, h5, text)
 import Html.Attributes exposing (attribute, class, href, id)
+import Svg.Attributes exposing (to)
 
 
 main : Program Never Model Msg
@@ -66,12 +67,12 @@ view model =
             , attribute "role" "tablist"
             ]
           <|
-            List.map (\l -> flowGraphCard (flowGraphWithHeader ( "hallo", l.layout ))) model.layouts
+            List.indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ( "hallo", l.layout ))) model.layouts
         ]
 
 
-flowGraphCard : List (Html msg) -> Html msg
-flowGraphCard graphAsHtml =
+flowGraphCard : Int -> List (Html msg) -> Html msg
+flowGraphCard i graphAsHtml =
     div
         [ class "card" ]
         [ div
@@ -83,15 +84,15 @@ flowGraphCard graphAsHtml =
                 [ class "mb-0" ]
                 [ a
                     [ attribute "data-toggle" "collapse"
-                    , href "#collapseOne"
+                    , href <| "#collapse" ++ (toString i)
                     , attribute "aria-expanded" "true"
-                    , attribute "aria-controls" "collapseOne"
+                    , attribute "aria-controls" <| "collapse" ++ (toString i)
                     ]
-                    [ text "Collapsible Group Item #1" ]
+                    [ text <| "Collapsible Group Item #" ++ (toString i) ]
                 ]
             ]
         , div
-            [ id "collapseOne"
+            [ id <| "collapse" ++ (toString i)
             , class "collapse show"
             , attribute "role" "tabpanel"
             , attribute "aria-labelledby" "headingOne"

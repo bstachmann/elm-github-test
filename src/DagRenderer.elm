@@ -328,7 +328,14 @@ newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLe
             (yLeftBottom + yRightBottom) // 2
 
         gradientId =
-            "gr" ++ (toString laneLeft) ++ "_" ++ (toString laneRight)
+            "connectorGradient_"
+                ++ (colorForLane laneLeft)
+                ++ "_"
+                ++ (colorForLane laneRight)
+                |> String.filter ((/=) '%')
+                |> String.filter ((/=) '(')
+                |> String.filter ((/=) ')')
+                |> String.filter ((/=) ',')
     in
         defGradient gradientId (colorForLane laneLeft) (colorForLane laneRight)
             :: Svg.path

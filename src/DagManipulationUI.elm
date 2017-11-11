@@ -1,5 +1,6 @@
 module DagManipulationUI exposing (..)
 
+import Bootstrap.Card exposing (CardHeader)
 import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
@@ -53,6 +54,7 @@ init =
                 [ { layout = layout1 }
                 , { layout = layout1 }
                 , { layout = layout1 }
+                , { layout = layout1 }
                 ]
           }
         , Cmd.none
@@ -80,33 +82,41 @@ view model =
 
 flowGraphCard : Int -> List (Html msg) -> Html msg
 flowGraphCard i graphAsHtml =
-    div
-        [ class "card" ]
-        [ div
-            [ class "card-header"
-            , id "headingOne"
-            ]
-            [ h5
-                [ class "mb-0" ]
-                [ a
-                    [ attribute "data-toggle" "collapse"
-                    , href <| "#collapse" ++ (toString i)
-                    , attribute "aria-expanded" "true"
-                    , attribute "aria-controls" <| "collapse" ++ (toString i)
-                    ]
-                    [ text <| "Collapsible Group Item #" ++ (toString i) ]
-                ]
-            ]
-        , div
-            [ id <| "collapse" ++ (toString i)
-            , class "collapse show"
-            , attribute "aria-labelledby" "headingOne"
-            ]
+    let
+        -- IMPROVE make unique if multiple instances of this graph are active
+        transformationId =
+            toString i
+
+        cardHeaderId =
+            "transformationHeader" ++ (toString i)
+
+        bodyCollapseId =
+            "transformationBodyBodyCollapse" ++ (toString i)
+    in
+        div
+            [ class "card" ]
             [ div
-                [ class "card-body" ]
-                graphAsHtml
+                [ class "card-header"
+                , id cardHeaderId
+                ]
+                [ h5
+                    [ class "mb-0" ]
+                    [ a
+                        [ attribute "data-toggle" "collapse"
+                        , href <| "#" ++ bodyCollapseId
+                        , attribute "aria-expanded" "true"
+                        , attribute "aria-controls" bodyCollapseId
+                        ]
+                        [ text cardHeaderId ]
+                    ]
+                ]
+            , div
+                [ id bodyCollapseId
+                , class "collapse hide"
+                , attribute "aria-labelledby" cardHeaderId
+                ]
+                [ div [ class "card-body" ] graphAsHtml ]
             ]
-        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

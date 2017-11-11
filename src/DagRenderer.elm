@@ -1,6 +1,7 @@
 module DagRenderer exposing (..)
 
 import Array exposing (Array)
+import Bootstrap.Form exposing (col)
 import Dag exposing (Dag, Node, foldlByRank)
 import Dict exposing (Dict, get, insert, keys, update)
 import Html exposing (Html, br, text)
@@ -245,9 +246,10 @@ flowGraphWithHeader ( desc, layout ) =
 
 newRender : StreamLayout i -> List (Svg m)
 newRender ((NewStreamLayout columnToColdict) as layout) =
-    (range 0 ((nrOfColumns layout) - 1)
-        |> List.foldl (renderColumn layout) []
-    )
+    gradients "grad"
+        :: (range 0 ((nrOfColumns layout) - 1)
+                |> List.foldl (renderColumn layout) []
+           )
 
 
 renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
@@ -327,33 +329,32 @@ newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLe
         yMiddleBottom =
             (yLeftBottom + yRightBottom) // 2
     in
-        defGradient (gradientId "grad" laneLeft laneRight) (colorForLane laneLeft) (colorForLane laneRight)
-            :: Svg.path
-                [ fill <| "url(#" ++ (gradientId "grad" laneLeft laneRight) ++ ")"
-                , d
-                    (-- Move right
-                     "M "
-                        ++ (point xLeft yLeftTop)
-                        ++ "Q "
-                        ++ (point xA yLeftTop)
-                        ++ (point xB yMiddleTop)
-                        ++ "Q "
-                        ++ (point xC yRightTop)
-                        ++ (point xRight yRightTop)
-                        -- Move down
-                        ++ "L "
-                        ++ (point xRight yRightBottom)
-                        -- Move left
-                        ++ "Q "
-                        ++ (point xC yRightBottom)
-                        ++ (point xB yMiddleBottom)
-                        ++ "Q "
-                        ++ (point xA yLeftBottom)
-                        ++ (point xLeft yLeftBottom)
-                        ++ "Z"
-                    )
-                ]
-                []
+        Svg.path
+            [ fill <| "url(#" ++ (gradientId "grad" (colorIdForLane laneLeft) (colorIdForLane laneRight)) ++ ")"
+            , d
+                (-- Move right
+                 "M "
+                    ++ (point xLeft yLeftTop)
+                    ++ "Q "
+                    ++ (point xA yLeftTop)
+                    ++ (point xB yMiddleTop)
+                    ++ "Q "
+                    ++ (point xC yRightTop)
+                    ++ (point xRight yRightTop)
+                    -- Move down
+                    ++ "L "
+                    ++ (point xRight yRightBottom)
+                    -- Move left
+                    ++ "Q "
+                    ++ (point xC yRightBottom)
+                    ++ (point xB yMiddleBottom)
+                    ++ "Q "
+                    ++ (point xA yLeftBottom)
+                    ++ (point xLeft yLeftBottom)
+                    ++ "Z"
+                )
+            ]
+            []
             :: acc
 
 
@@ -361,25 +362,34 @@ newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLe
 {--Implementation helpers --}
 
 
-gradientId : String -> LaneId -> LaneId -> String
-gradientId compId l1 l2 =
+gradientId : String -> int -> int -> String
+gradientId compId col1 col2 =
     compId
-        ++ (colorIdForLane l1 |> toString)
+        ++ (col1 |> toString)
         ++ "_"
-        ++ (colorIdForLane l2 |> toString)
+        ++ (col2 |> toString)
 
 
-defGradient : String -> String -> String -> Svg m
-defGradient theId col1 col2 =
-    defs
-        []
-        [ linearGradient
-            [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
-            [ stop [ offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0" ] []
-            , stop [ offset "30%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:0.6" ] []
-            , stop [ offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:0.6" ] []
-            , stop [ offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0" ] []
-            ]
+gradients : String -> Svg m
+gradients compId =
+    let
+        colorIds =
+            range 0 (Array.length config.laneColors)
+    in
+        defs
+            []
+        <|
+            concatMap (\c1 -> List.map (\c2 -> gradient (gradientId compId c1 c2) (colorForId c1) (colorForId c2)) colorIds) colorIds
+
+
+gradient : String -> String -> String -> Svg m
+gradient theId col1 col2 =
+    linearGradient
+        [ id theId, x1 "0%", y1 "0%", x2 "100%", y2 "0%" ]
+        [ stop [ offset "0%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:1.0" ] []
+        , stop [ offset "30%", Svg.Attributes.style <| "stop-color:" ++ col1 ++ ";stop-opacity:0.6" ] []
+        , stop [ offset "85%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:0.6" ] []
+        , stop [ offset "100%", Svg.Attributes.style <| "stop-color:" ++ col2 ++ ";stop-opacity:1.0" ] []
         ]
 
 
@@ -390,7 +400,12 @@ colorIdForLane lane =
 
 colorForLane : LaneId -> String
 colorForLane lane =
-    Array.get (colorIdForLane lane) config.laneColors |> Maybe.withDefault "blue"
+    colorForId (colorIdForLane lane)
+
+
+colorForId : Int -> String
+colorForId colid =
+    Array.get colid config.laneColors |> Maybe.withDefault "blue"
 
 
 diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> List (Svg m)

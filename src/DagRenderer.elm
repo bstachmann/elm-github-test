@@ -192,6 +192,15 @@ compressColumn column ((NewStreamLayout columnToColdict) as layout) =
 {--Rendering to SVG --}
 
 
+config :
+    { columnWidth : Int
+    , connectorWidth : Int
+    , diagnosticsFor : Set.Set String
+    , laneColors : Array String
+    , laneHeight : Int
+    , opacity : String
+    , rowHeight : Int
+    }
 config =
     { columnWidth = 120
     , connectorWidth = 80

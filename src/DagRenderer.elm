@@ -385,9 +385,14 @@ defGradient theId col1 col2 =
         ]
 
 
+colorIdForLane : LaneId -> Int
+colorIdForLane lane =
+    (lane * 3) % (Array.length config.laneColors)
+
+
 colorForLane : LaneId -> String
 colorForLane lane =
-    Array.get ((lane * 3) % (Array.length config.laneColors)) config.laneColors |> Maybe.withDefault "blue"
+    Array.get (colorIdForLane lane) config.laneColors |> Maybe.withDefault "blue"
 
 
 diagnostic : String -> e -> String -> ( Int, Int, Int, Int ) -> List (Svg m) -> List (Svg m)

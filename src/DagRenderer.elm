@@ -326,20 +326,10 @@ newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLe
 
         yMiddleBottom =
             (yLeftBottom + yRightBottom) // 2
-
-        gradientId =
-            "connectorGradient_"
-                ++ (colorForLane laneLeft)
-                ++ "_"
-                ++ (colorForLane laneRight)
-                |> String.filter ((/=) '%')
-                |> String.filter ((/=) '(')
-                |> String.filter ((/=) ')')
-                |> String.filter ((/=) ',')
     in
-        defGradient gradientId (colorForLane laneLeft) (colorForLane laneRight)
+        defGradient (gradientId "grad" laneLeft laneRight) (colorForLane laneLeft) (colorForLane laneRight)
             :: Svg.path
-                [ fill <| "url(#" ++ gradientId ++ ")"
+                [ fill <| "url(#" ++ (gradientId "grad" laneLeft laneRight) ++ ")"
                 , d
                     (-- Move right
                      "M "
@@ -369,6 +359,14 @@ newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLe
 
 
 {--Implementation helpers --}
+
+
+gradientId : String -> LaneId -> LaneId -> String
+gradientId compId l1 l2 =
+    compId
+        ++ (colorIdForLane l1 |> toString)
+        ++ "_"
+        ++ (colorIdForLane l2 |> toString)
 
 
 defGradient : String -> String -> String -> Svg m

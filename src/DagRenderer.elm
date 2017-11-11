@@ -228,8 +228,8 @@ config =
     }
 
 
-flowGraphWithHeader : ( String, StreamLayout i ) -> List (Html m)
-flowGraphWithHeader ( desc, layout ) =
+flowGraphWithHeader : String -> ( String, StreamLayout i ) -> List (Html m)
+flowGraphWithHeader graphId ( desc, layout ) =
     let
         h =
             nrOfLanes layout |> (+) 1 |> (*) config.rowHeight |> toString |> (\s -> s ++ "px")
@@ -240,20 +240,20 @@ flowGraphWithHeader ( desc, layout ) =
         , Svg.svg
             [ Svg.Attributes.version "1.1", x "0", y "0", width "1280px", height h, viewBox ("0 0 1280px " ++ h) ]
           <|
-            newRender layout
+            newRender layout graphId
         ]
 
 
-newRender : StreamLayout i -> List (Svg m)
-newRender ((NewStreamLayout columnToColdict) as layout) =
-    gradients "grad"
+newRender : StreamLayout i -> String -> List (Svg m)
+newRender ((NewStreamLayout columnToColdict) as layout) graphId =
+    gradients graphId
         :: (range 0 ((nrOfColumns layout) - 1)
-                |> List.foldl (renderColumn layout) []
+                |> List.foldl (renderColumn layout graphId) []
            )
 
 
-renderColumn : StreamLayout i -> ColumnId -> List (Svg m) -> List (Svg m)
-renderColumn ((NewStreamLayout columnToColdict) as layout) column acc =
+renderColumn : StreamLayout i -> String -> ColumnId -> List (Svg m) -> List (Svg m)
+renderColumn ((NewStreamLayout columnToColdict) as layout) graphId column acc =
     let
         x0 =
             config.columnWidth * column
@@ -264,19 +264,19 @@ renderColumn ((NewStreamLayout columnToColdict) as layout) column acc =
                 |> Dict.keys
     in
         acc
-            |> (\acc -> foldl (renderSection layout column) acc lanes)
+            |> (\acc -> foldl (renderSection layout graphId column) acc lanes)
 
 
-renderSection : StreamLayout i -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
-renderSection ((NewStreamLayout columnToColdict) as layout) column lane acc =
+renderSection : StreamLayout i -> String -> ColumnId -> LaneId -> List (Svg m) -> List (Svg m)
+renderSection ((NewStreamLayout columnToColdict) as layout) graphId column lane acc =
     Dict.get column columnToColdict
         |> Maybe.andThen (Dict.get lane)
-        |> Maybe.map (\c -> renderCell layout column lane c acc)
+        |> Maybe.map (\c -> renderCell layout graphId column lane c acc)
         |> Maybe.withDefault acc
 
 
-renderCell : StreamLayout i -> Int -> Int -> Cell i -> List (Svg m) -> List (Svg m)
-renderCell ((NewStreamLayout _) as layout) column lane (NewCell i successors) acc =
+renderCell : StreamLayout i -> String -> Int -> Int -> Cell i -> List (Svg m) -> List (Svg m)
+renderCell ((NewStreamLayout _) as layout) graphId column lane (NewCell i successors) acc =
     let
         bounds =
             ( column * config.columnWidth, lane * config.rowHeight, config.columnWidth - config.connectorWidth, config.laneHeight )
@@ -289,12 +289,12 @@ renderCell ((NewStreamLayout _) as layout) column lane (NewCell i successors) ac
                 ]
                 [ Svg.text <| toString i ]
             :: acc
-            |> (\acc -> List.foldl (newRenderConnections layout column lane) acc successors)
+            |> (\acc -> List.foldl (newRenderConnections layout graphId column lane) acc successors)
             |> diagnostic "cell" lane "red" bounds
 
 
-newRenderConnections : StreamLayout i -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
-newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLeft laneRight acc =
+newRenderConnections : StreamLayout i -> String -> Int -> Int -> LaneId -> List (Svg m) -> List (Svg m)
+newRenderConnections ((NewStreamLayout columnToColdict) as layout) graphId column laneLeft laneRight acc =
     let
         xRight =
             (column + 1) * config.columnWidth
@@ -330,7 +330,7 @@ newRenderConnections ((NewStreamLayout columnToColdict) as layout) column laneLe
             (yLeftBottom + yRightBottom) // 2
     in
         Svg.path
-            [ fill <| "url(#" ++ (gradientId "grad" (colorIdForLane laneLeft) (colorIdForLane laneRight)) ++ ")"
+            [ fill <| "url(#" ++ (gradientId graphId (colorIdForLane laneLeft) (colorIdForLane laneRight)) ++ ")"
             , d
                 (-- Move right
                  "M "

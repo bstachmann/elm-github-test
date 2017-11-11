@@ -46,7 +46,7 @@ main =
 
         htmls =
             layouts
-                |> concatMap flowGraphWithHeader
+                |> concatMap (flowGraphWithHeader "flow")
     in
         Html.body [] <|
             Html.text "Hello Rendering Dag to Stream Graph!"

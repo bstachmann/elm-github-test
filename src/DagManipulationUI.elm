@@ -74,7 +74,7 @@ view model =
                     , attribute "role" "tablist"
                     ]
                   <|
-                    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ( "hallo", l.layout ))) model.layouts
+                    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l.layout ))) model.layouts
                 ]
             ]
         ]

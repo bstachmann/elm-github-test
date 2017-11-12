@@ -6,7 +6,8 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
 import Html exposing (Html, a, div, h5, text)
 import Html.Attributes exposing (attribute, class, href, id)
-import List exposing (indexedMap)
+import List exposing (foldl, indexedMap)
+import Maybe exposing (withDefault)
 
 
 main : Program Never Model Msg
@@ -31,7 +32,7 @@ type Msg
 
 
 type alias Transformation i =
-    { layout : StreamLayout i
+    { transformation : DagRenderer.Dsl i
     }
 
 
@@ -50,10 +51,8 @@ init =
         ( { dag = g
           , layout = toFlowLayout g
           , layouts =
-                [ { layout = toFlowLayout g }
-                , { layout = toFlowLayout g }
-                , { layout = toFlowLayout g }
-                , { layout = toFlowLayout g }
+                [ { transformation = DagRenderer.CompressColumns }
+                , { transformation = DagRenderer.SwapLanes 1 3 }
                 ]
           }
         , Cmd.none
@@ -73,7 +72,13 @@ view model =
                     , attribute "role" "tablist"
                     ]
                   <|
-                    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l.layout ))) model.layouts
+                    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l ))) <|
+                        foldl
+                            (\t acc ->
+                                (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
+                            )
+                            [ model.layout ]
+                            model.layouts
                 ]
             ]
         ]

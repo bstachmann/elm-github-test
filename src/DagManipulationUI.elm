@@ -21,6 +21,7 @@ main =
 
 type alias Model =
     { dag : Dag String String
+    , layout : StreamLayout String
     , layouts : List (Transformation String)
     }
 
@@ -45,16 +46,14 @@ init =
                 |> node "D" [ "A" ]
                 |> node "E" [ "C", "D" ]
                 |> node "F" [ "C" ]
-
-        layout1 =
-            toFlowLayout g
     in
         ( { dag = g
+          , layout = toFlowLayout g
           , layouts =
-                [ { layout = layout1 }
-                , { layout = layout1 }
-                , { layout = layout1 }
-                , { layout = layout1 }
+                [ { layout = toFlowLayout g }
+                , { layout = toFlowLayout g }
+                , { layout = toFlowLayout g }
+                , { layout = toFlowLayout g }
                 ]
           }
         , Cmd.none

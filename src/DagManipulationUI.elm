@@ -82,10 +82,15 @@ flowGraphCards : Model -> List (Html msg)
 flowGraphCards model =
     model.transformations
         |> foldl
-            (\t acc ->
-                (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
+            (\t ( previousLayout, layouts ) ->
+                let
+                    l =
+                        DagRenderer.apply t.transformation previousLayout
+                in
+                    ( l, (l :: layouts) )
             )
-            [ model.initialLayout ]
+            ( model.initialLayout, [] )
+        |> Tuple.second
         |> indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l )))
 
 

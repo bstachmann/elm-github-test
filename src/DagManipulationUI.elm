@@ -22,8 +22,8 @@ main =
 
 type alias Model =
     { dag : Dag String String
-    , layout : StreamLayout String
-    , layouts : List (Transformation String)
+    , initialLayout : StreamLayout String
+    , transformations : List (Transformation String)
     }
 
 
@@ -49,8 +49,8 @@ init =
                 |> node "F" [ "C" ]
     in
         ( { dag = g
-          , layout = toFlowLayout g
-          , layouts =
+          , initialLayout = toFlowLayout g
+          , transformations =
                 [ { transformation = DagRenderer.CompressColumns }
                 , { transformation = DagRenderer.SwapLanes 1 3 }
                 ]
@@ -84,8 +84,8 @@ flowGraphCards model =
         (\t acc ->
             (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
         )
-        [ model.layout ]
-        model.layouts
+        [ model.initialLayout ]
+        model.transformations
         |> indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l )))
 
 

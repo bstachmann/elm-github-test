@@ -49,8 +49,10 @@ init =
         ( { dag = g
           , initialLayout = toFlowLayout g
           , transformations =
-                [ { transformation = DagRenderer.CompressColumns }
+                [ { transformation = DagRenderer.Identity }
                 , { transformation = DagRenderer.SwapLanes 1 3 }
+                , { transformation = DagRenderer.CompressColumns }
+                , { transformation = DagRenderer.SwapLanes 0 1 }
                 ]
           }
         , Cmd.none
@@ -89,6 +91,7 @@ flowGraphCards model =
             )
             ( model.initialLayout, [] )
         |> Tuple.second
+        |> List.reverse
         |> indexedMap (\i ( t, l ) -> flowGraphCard i t l)
 
 

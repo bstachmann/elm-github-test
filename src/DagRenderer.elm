@@ -84,6 +84,7 @@ type Dsl i
     = CompressColumns
     | SwapCells Int Int Int
     | SwapLanes Int Int
+    | Identity
 
 
 apply : Dsl i -> StreamLayout i -> StreamLayout i
@@ -98,6 +99,9 @@ apply command layout =
 
             SwapLanes l1 l2 ->
                 swapLanes l1 l2
+
+            Identity ->
+                identity
 
 
 

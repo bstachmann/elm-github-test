@@ -80,12 +80,12 @@ view model =
 
 flowGraphCards : Model -> List (Html msg)
 flowGraphCards model =
-    foldl
-        (\t acc ->
-            (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
-        )
-        [ model.initialLayout ]
-        model.transformations
+    model.transformations
+        |> foldl
+            (\t acc ->
+                (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
+            )
+            [ model.initialLayout ]
         |> indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l )))
 
 

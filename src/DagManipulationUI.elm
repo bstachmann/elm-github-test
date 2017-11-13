@@ -1,13 +1,11 @@
 module DagManipulationUI exposing (..)
 
-import Bootstrap.Card exposing (CardHeader)
 import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
 import Html exposing (Html, a, div, h5, text)
 import Html.Attributes exposing (attribute, class, href, id)
 import List exposing (foldl, indexedMap)
-import Maybe exposing (withDefault)
 
 
 main : Program Never Model Msg
@@ -82,27 +80,27 @@ flowGraphCards : Model -> List (Html msg)
 flowGraphCards model =
     model.transformations
         |> foldl
-            (\t ( previousLayout, layouts ) ->
+            (\t ( previousLayout, results ) ->
                 let
                     l =
                         DagRenderer.apply t.transformation previousLayout
                 in
-                    ( l, (l :: layouts) )
+                    ( l, (( t, l ) :: results) )
             )
             ( model.initialLayout, [] )
         |> Tuple.second
-        |> indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l )))
+        |> indexedMap (\i ( t, l ) -> flowGraphCard i t l)
 
 
-flowGraphCard : Int -> List (Html msg) -> Html msg
-flowGraphCard i graphAsHtml =
+flowGraphCard : Int -> Transformation String -> StreamLayout String -> Html msg
+flowGraphCard i t l =
     let
         -- IMPROVE make unique if multiple instances of this graph are active
         transformationId =
             toString i
 
         cardHeaderId =
-            "transformationHeader" ++ (toString i)
+            (toString t.transformation)
 
         bodyCollapseId =
             "transformationBodyBodyCollapse" ++ (toString i)
@@ -129,7 +127,13 @@ flowGraphCard i graphAsHtml =
                 , class "collapse hide"
                 , attribute "aria-labelledby" cardHeaderId
                 ]
-                [ div [ class "card-body" ] graphAsHtml ]
+                [ div
+                    [ class "card-body" ]
+                    (flowGraphWithHeader
+                        ("flow" ++ (toString i))
+                        ( "egal", l )
+                    )
+                ]
             ]
 
 

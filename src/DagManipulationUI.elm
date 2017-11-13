@@ -72,16 +72,21 @@ view model =
                     , attribute "role" "tablist"
                     ]
                   <|
-                    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l ))) <|
-                        foldl
-                            (\t acc ->
-                                (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
-                            )
-                            [ model.layout ]
-                            model.layouts
+                    flowGraphCards model
                 ]
             ]
         ]
+
+
+flowGraphCards : Model -> List (Html msg)
+flowGraphCards model =
+    indexedMap (\i l -> flowGraphCard i (flowGraphWithHeader ("flow" ++ (toString i)) ( "hallo", l ))) <|
+        foldl
+            (\t acc ->
+                (List.head acc |> withDefault DagRenderer.empty |> DagRenderer.apply t.transformation) :: acc
+            )
+            [ model.layout ]
+            model.layouts
 
 
 flowGraphCard : Int -> List (Html msg) -> Html msg

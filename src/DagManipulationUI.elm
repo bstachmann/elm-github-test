@@ -132,12 +132,19 @@ flowGraphCard i t l =
                 ]
                 [ div
                     [ class "card-body" ]
-                    (flowGraphWithHeader
-                        ("flow" ++ (toString i))
-                        ( "egal", l )
+                    ((transformationView t)
+                        :: (flowGraphWithHeader
+                                ("flow" ++ (toString i))
+                                ( "egal", l )
+                           )
                     )
                 ]
             ]
+
+
+transformationView : a -> Html msg
+transformationView t =
+    h5 [] [ text ("wurst" ++ toString t) ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

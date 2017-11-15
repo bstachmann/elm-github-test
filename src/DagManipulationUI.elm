@@ -1,10 +1,11 @@
 module DagManipulationUI exposing (..)
 
+import Bootstrap.Form exposing (label)
 import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
-import DagRenderer exposing (StreamLayout, empty, flowGraphWithHeader, toFlowLayout)
-import Html exposing (Html, a, div, h5, text)
-import Html.Attributes exposing (attribute, class, href, id)
+import DagRenderer exposing (..)
+import Html exposing (Html, a, div, h5, input, text)
+import Html.Attributes exposing (attribute, class, href, id, value)
 import List exposing (foldl, indexedMap)
 
 
@@ -142,9 +143,28 @@ flowGraphCard i t l =
             ]
 
 
-transformationView : a -> Html msg
+transformationView : Transformation String -> Html msg
 transformationView t =
-    h5 [] [ text ("wurst" ++ toString t) ]
+    case t.transformation of
+        CompressColumns ->
+            h5 [] [ text ("wurst" ++ toString t) ]
+
+        DagRenderer.SwapCells _ _ _ ->
+            h5 [] [ text ("kaese" ++ toString t) ]
+
+        DagRenderer.SwapLanes l1 l2 ->
+            Bootstrap.Form.form
+                []
+                [ div [ class "form-group" ]
+                    [ label [] [ text "Lane 1" ]
+                    , input [ value <| toString l1 ] []
+                    , label [] [ text "Lane 2" ]
+                    , input [ value <| toString l2 ] []
+                    ]
+                ]
+
+        DagRenderer.Identity ->
+            h5 [] [ text ("gouda" ++ toString t) ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

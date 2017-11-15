@@ -8,6 +8,8 @@ import Html exposing (Html, a, div, h5, input, text)
 import Html.Attributes exposing (attribute, class, href, id, value)
 import Html.Events exposing (onInput)
 import List exposing (foldl, indexedMap)
+import List.Extra
+import Svg.Attributes exposing (transform)
 
 
 main : Program Never Model Msg
@@ -135,7 +137,7 @@ flowGraphCard i t l =
                 ]
                 [ div
                     [ class "card-body" ]
-                    ((transformationView t)
+                    ((transformationView i t)
                         :: (flowGraphWithHeader
                                 ("flow" ++ (toString i))
                                 ( "egal", l )
@@ -145,8 +147,8 @@ flowGraphCard i t l =
             ]
 
 
-transformationView : Transformation String -> Html Msg
-transformationView t =
+transformationView : Int -> Transformation String -> Html Msg
+transformationView i t =
     case t.transformation of
         CompressColumns ->
             h5 [] [ text ("wurst" ++ toString t) ]
@@ -159,7 +161,7 @@ transformationView t =
                 []
                 [ div [ class "form-group" ]
                     [ label [] [ text "Lane 1" ]
-                    , input [ value <| toString l1, onInput (\s -> UpdateTransformation 2) ] []
+                    , input [ value <| toString l1, onInput (\s -> UpdateTransformation i) ] []
                     , label [] [ text "Lane 2" ]
                     , input [ value <| toString l2 ] []
                     ]
@@ -176,7 +178,7 @@ update msg model =
             ( model, Cmd.none )
 
         UpdateTransformation nr ->
-            ( { model | transformations = [] }, Cmd.none )
+            ( { model | transformations = List.Extra.removeAt nr model.transformations }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

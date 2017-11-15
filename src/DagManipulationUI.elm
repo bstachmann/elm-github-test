@@ -6,6 +6,7 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
 import Html.Attributes exposing (attribute, class, href, id, value)
+import Html.Events exposing (onInput)
 import List exposing (foldl, indexedMap)
 
 
@@ -28,6 +29,7 @@ type alias Model =
 
 type Msg
     = Nothing
+    | UpdateTransformation Int
 
 
 type alias Transformation i =
@@ -79,7 +81,7 @@ view model =
         ]
 
 
-flowGraphCards : Model -> List (Html msg)
+flowGraphCards : Model -> List (Html Msg)
 flowGraphCards model =
     model.transformations
         |> foldl
@@ -96,7 +98,7 @@ flowGraphCards model =
         |> indexedMap (\i ( t, l ) -> flowGraphCard i t l)
 
 
-flowGraphCard : Int -> Transformation String -> StreamLayout String -> Html msg
+flowGraphCard : Int -> Transformation String -> StreamLayout String -> Html Msg
 flowGraphCard i t l =
     let
         -- IMPROVE make unique if multiple instances of this graph are active
@@ -143,7 +145,7 @@ flowGraphCard i t l =
             ]
 
 
-transformationView : Transformation String -> Html msg
+transformationView : Transformation String -> Html Msg
 transformationView t =
     case t.transformation of
         CompressColumns ->
@@ -157,7 +159,7 @@ transformationView t =
                 []
                 [ div [ class "form-group" ]
                     [ label [] [ text "Lane 1" ]
-                    , input [ value <| toString l1 ] []
+                    , input [ value <| toString l1, onInput (\s -> UpdateTransformation 2) ] []
                     , label [] [ text "Lane 2" ]
                     , input [ value <| toString l2 ] []
                     ]
@@ -172,6 +174,9 @@ update msg model =
     case msg of
         Nothing ->
             ( model, Cmd.none )
+
+        UpdateTransformation nr ->
+            ( { model | transformations = [] }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

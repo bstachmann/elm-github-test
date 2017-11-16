@@ -1,5 +1,6 @@
 module DagManipulationUI exposing (..)
 
+import Array exposing (Array)
 import Bootstrap.Form exposing (label)
 import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
@@ -24,7 +25,7 @@ main =
 type alias Model =
     { dag : Dag String String
     , initialLayout : StreamLayout String
-    , transformations : List (Transformation String)
+    , transformations : Array (Transformation String)
     }
 
 
@@ -53,11 +54,12 @@ init =
         ( { dag = g
           , initialLayout = toFlowLayout g
           , transformations =
-                [ { transformation = DagRenderer.Identity }
-                , { transformation = DagRenderer.SwapLanes 1 3 }
-                , { transformation = DagRenderer.CompressColumns }
-                , { transformation = DagRenderer.SwapLanes 0 1 }
-                ]
+                Array.fromList
+                    [ { transformation = DagRenderer.Identity }
+                    , { transformation = DagRenderer.SwapLanes 1 3 }
+                    , { transformation = DagRenderer.CompressColumns }
+                    , { transformation = DagRenderer.SwapLanes 0 1 }
+                    ]
           }
         , Cmd.none
         )
@@ -85,7 +87,7 @@ view model =
 flowGraphCards : Model -> List (Html Msg)
 flowGraphCards model =
     model.transformations
-        |> foldl
+        |> Array.foldl
             (\t ( previousLayout, results ) ->
                 let
                     l =
@@ -177,7 +179,12 @@ update msg model =
             ( model, Cmd.none )
 
         UpdateTransformation nr ->
-            ( { model | transformations = List.Extra.removeAt nr model.transformations }, Cmd.none )
+            ( { model
+                | transformations =
+                    Array.set nr ({ transformation = SwapLanes 4 5 }) model.transformations
+              }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg

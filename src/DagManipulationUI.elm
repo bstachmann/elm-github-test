@@ -9,7 +9,6 @@ import Html.Attributes exposing (attribute, class, href, id, value)
 import Html.Events exposing (onInput)
 import List exposing (foldl, indexedMap)
 import List.Extra
-import Svg.Attributes exposing (transform)
 
 
 main : Program Never Model Msg

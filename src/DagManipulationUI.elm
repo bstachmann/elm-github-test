@@ -9,7 +9,6 @@ import Html exposing (Html, a, div, h5, input, text)
 import Html.Attributes exposing (attribute, class, href, id, value)
 import Html.Events exposing (onInput)
 import List exposing (foldl, indexedMap)
-import List.Extra
 
 
 main : Program Never Model Msg
@@ -31,7 +30,7 @@ type alias Model =
 
 type Msg
     = Nothing
-    | UpdateTransformation Int
+    | UpdateTransformation Int (DagRenderer.Dsl String)
 
 
 type alias Transformation i =
@@ -162,7 +161,12 @@ transformationView i t =
                 []
                 [ div [ class "form-group" ]
                     [ label [] [ text "Lane 1" ]
-                    , input [ value <| toString l1, onInput (\s -> UpdateTransformation i) ] []
+                    , input
+                        [ value <| toString l1
+                        , onInput
+                            (\s -> UpdateTransformation i (SwapLanes 3 2))
+                        ]
+                        []
                     , label [] [ text "Lane 2" ]
                     , input [ value <| toString l2 ] []
                     ]
@@ -178,10 +182,10 @@ update msg model =
         Nothing ->
             ( model, Cmd.none )
 
-        UpdateTransformation nr ->
+        UpdateTransformation nr command ->
             ( { model
                 | transformations =
-                    Array.set nr ({ transformation = SwapLanes 4 5 }) model.transformations
+                    Array.set nr ({ transformation = command }) model.transformations
               }
             , Cmd.none
             )

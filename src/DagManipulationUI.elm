@@ -163,15 +163,14 @@ transformationView i t =
                 [ div [ class "form-group" ]
                     [ label [] [ text "Lane 1" ]
                     , input
-                        [ value <| toString l1
-                        , onInputUpdateTransformation
-                            i
-                            toInt
-                            (\l -> (SwapLanes l l2))
-                        ]
+                        [ value <| toString l1, onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2)) ]
                         []
-                    , label [] [ text "Lane 2" ]
-                    , input [ value <| toString l2 ] []
+                    ]
+                , div [ class "form-group" ]
+                    [ label [] [ text "Lane 2" ]
+                    , input
+                        [ value <| toString l2, onInputUpdateTransformation i toInt (\l -> (SwapLanes l1 l)) ]
+                        []
                     ]
                 ]
 

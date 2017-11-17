@@ -9,7 +9,7 @@ import Html exposing (Html, a, div, h5, input, text)
 import Html.Attributes exposing (attribute, class, href, id, value)
 import Html.Events exposing (onInput)
 import List exposing (foldl, indexedMap)
-import Maybe exposing (andThen, withDefault)
+import String exposing (toInt)
 
 
 main : Program Never Model Msg
@@ -31,7 +31,7 @@ type alias Model =
 
 type Msg
     = Nothing
-    | UpdateTransformation Int (Maybe (DagRenderer.Dsl String))
+    | UpdateTransformation Int (Result String (DagRenderer.Dsl String))
 
 
 type alias Transformation i =
@@ -164,8 +164,9 @@ transformationView i t =
                     [ label [] [ text "Lane 1" ]
                     , input
                         [ value <| toString l1
-                        , onInput
-                            (\s -> UpdateTransformation i (Just (SwapLanes 3 2)))
+                        , updateTransformationOnInput
+                            i
+                            (\s -> s |> toInt |> Result.andThen (\s2 -> Ok (SwapLanes s2 1)))
                         ]
                         []
                     , label [] [ text "Lane 2" ]
@@ -177,6 +178,15 @@ transformationView i t =
             h5 [] [ text ("gouda" ++ toString t) ]
 
 
+updateTransformationOnInput :
+    Int
+    -> (String -> Result String (Dsl String))
+    -> Html.Attribute Msg
+updateTransformationOnInput i f =
+    onInput
+        (\s -> UpdateTransformation i (f s))
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -185,11 +195,11 @@ update msg model =
 
         UpdateTransformation nr maybeCommand ->
             ( maybeCommand
-                |> andThen
+                |> Result.andThen
                     (\command ->
-                        Just { model | transformations = Array.set nr { transformation = command } model.transformations }
+                        Result.Ok { model | transformations = Array.set nr { transformation = command } model.transformations }
                     )
-                |> withDefault model
+                |> Result.withDefault model
             , Cmd.none
             )
 

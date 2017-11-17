@@ -164,9 +164,10 @@ transformationView i t =
                     [ label [] [ text "Lane 1" ]
                     , input
                         [ value <| toString l1
-                        , updateTransformationOnInput
+                        , onInputUpdateTransformation
                             i
-                            (\s -> s |> toInt |> Result.andThen (\s2 -> Ok (SwapLanes s2 1)))
+                            toInt
+                            (\l -> (SwapLanes l l2))
                         ]
                         []
                     , label [] [ text "Lane 2" ]
@@ -178,13 +179,19 @@ transformationView i t =
             h5 [] [ text ("gouda" ++ toString t) ]
 
 
-updateTransformationOnInput :
+onInputUpdateTransformation :
     Int
-    -> (String -> Result String (Dsl String))
+    -> (String -> Result String a)
+    -> (a -> Dsl String)
     -> Html.Attribute Msg
-updateTransformationOnInput i f =
+onInputUpdateTransformation i parseString createTransformation =
     onInput
-        (\s -> UpdateTransformation i (f s))
+        (\s ->
+            s
+                |> parseString
+                |> Result.andThen (createTransformation >> Ok)
+                |> UpdateTransformation i
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

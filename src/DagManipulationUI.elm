@@ -164,20 +164,21 @@ collapseButton bodyCollapseId =
 
 transformationView : Int -> Transformation String -> List (Html Msg)
 transformationView i t =
-    case t.transformation of
-        CompressColumns ->
-            [ h5 [] [ Html.text ("wurst" ++ toString t) ] ]
+    Html.h4 [] [ Html.text <| toString t.transformation ]
+        :: case t.transformation of
+            CompressColumns ->
+                [ h5 [] [ Html.text ("wurst" ++ toString t) ] ]
 
-        DagRenderer.SwapCells _ _ _ ->
-            [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
+            DagRenderer.SwapCells _ _ _ ->
+                [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
 
-        DagRenderer.SwapLanes l1 l2 ->
-            [ intField i "1st lane " l1 (\l -> (SwapLanes l l2))
-            , intField i "2nd lane " l2 (\l -> (SwapLanes l1 l))
-            ]
+            DagRenderer.SwapLanes l1 l2 ->
+                [ intField i "1st lane " l1 (\l -> (SwapLanes l l2))
+                , intField i "2nd lane " l2 (\l -> (SwapLanes l1 l))
+                ]
 
-        DagRenderer.Identity ->
-            [ h5 [] [ Html.text ("gouda" ++ toString t) ] ]
+            DagRenderer.Identity ->
+                [ h5 [] [ Html.text ("gouda" ++ toString t) ] ]
 
 
 intField : Int -> String -> a -> (Int -> Dsl String) -> Html Msg

@@ -126,15 +126,15 @@ flowGraphCard i t l =
                 ]
                 [ h5
                     [ class "mb-0" ]
-                    [ a
+                    (a
                         [ attribute "data-toggle" "collapse"
                         , href <| "#" ++ bodyCollapseId
                         , attribute "aria-expanded" "true"
                         , attribute "aria-controls" bodyCollapseId
                         ]
                         [ Html.text cardHeaderId ]
-                    , transformationView i t
-                    ]
+                        :: (transformationView i t)
+                    )
                 ]
             , div
                 [ id bodyCollapseId
@@ -152,17 +152,17 @@ flowGraphCard i t l =
             ]
 
 
-transformationView : Int -> Transformation String -> Html Msg
+transformationView : Int -> Transformation String -> List (Html Msg)
 transformationView i t =
     case t.transformation of
         CompressColumns ->
-            h5 [] [ Html.text ("wurst" ++ toString t) ]
+            [ h5 [] [ Html.text ("wurst" ++ toString t) ] ]
 
         DagRenderer.SwapCells _ _ _ ->
-            h5 [] [ Html.text ("kaese" ++ toString t) ]
+            [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
 
         DagRenderer.SwapLanes l1 l2 ->
-            Bootstrap.Form.formInline
+            [ Bootstrap.Form.formInline
                 []
                 [ Bootstrap.Form.Fieldset.config
                     |> Bootstrap.Form.Fieldset.children
@@ -171,9 +171,10 @@ transformationView i t =
                         ]
                     |> Bootstrap.Form.Fieldset.view
                 ]
+            ]
 
         DagRenderer.Identity ->
-            h5 [] [ Html.text ("gouda" ++ toString t) ]
+            [ h5 [] [ Html.text ("gouda" ++ toString t) ] ]
 
 
 intField : Int -> String -> a -> (Int -> Dsl String) -> Html Msg

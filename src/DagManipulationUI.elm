@@ -125,14 +125,11 @@ flowGraphCard i t l =
                 [ class "card-header"
                 , id cardHeaderId
                 ]
-                [ h5
-                    [ class "mb-0" ]
-                    [ Bootstrap.Form.formInline
-                        []
-                        [ Bootstrap.Form.Fieldset.config
-                            |> Bootstrap.Form.Fieldset.children (collapseButton bodyCollapseId :: transformationView i t)
-                            |> Bootstrap.Form.Fieldset.view
-                        ]
+                [ Bootstrap.Form.formInline
+                    []
+                    [ Bootstrap.Form.Fieldset.config
+                        |> Bootstrap.Form.Fieldset.children (collapseButton bodyCollapseId :: transformationView i t)
+                        |> Bootstrap.Form.Fieldset.view
                     ]
                 ]
             , div
@@ -164,10 +161,10 @@ collapseButton bodyCollapseId =
 
 transformationView : Int -> Transformation String -> List (Html Msg)
 transformationView i t =
-    Html.h4 [] [ Html.text <| toString t.transformation ]
+    Html.div [ class "inline" ] [ Html.text <| toString t.transformation ]
         :: case t.transformation of
             CompressColumns ->
-                [ h5 [] [ Html.text ("wurst" ++ toString t) ] ]
+                [ h5 [ class "inline" ] [ Html.text ("wurst" ++ toString t) ] ]
 
             DagRenderer.SwapCells _ _ _ ->
                 [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
@@ -178,7 +175,7 @@ transformationView i t =
                 ]
 
             DagRenderer.Identity ->
-                [ h5 [] [ Html.text ("gouda" ++ toString t) ] ]
+                [ div [ class "inline" ] [ Html.text ("gouda" ++ toString t) ] ]
 
 
 intField : Int -> String -> a -> (Int -> Dsl String) -> Html Msg
@@ -187,7 +184,6 @@ intField i labelText currentValue updateTransformation =
         (Bootstrap.Form.InputGroup.number
             [ defaultValue (toString currentValue)
             , onInputUpdateTransformation i toInt updateTransformation
-            , Bootstrap.Form.Input.small
             ]
         )
         |> Bootstrap.Form.InputGroup.predecessors

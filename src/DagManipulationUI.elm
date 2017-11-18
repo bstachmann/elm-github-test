@@ -2,6 +2,7 @@ module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
 import Bootstrap.Form exposing (label)
+import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, text)
 import Bootstrap.Form.InputGroup exposing (text)
 import Bootstrap.Grid as Grid
@@ -162,18 +163,20 @@ transformationView i t =
         DagRenderer.SwapLanes l1 l2 ->
             Bootstrap.Form.form
                 []
-                [ div [ class "form-group" ]
-                    [ Bootstrap.Form.Input.text [ defaultValue "Lane 1" ]
-                    , Bootstrap.Form.Input.number
-                        [ defaultValue (toString l1)
-                        , onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2))
+                [ Bootstrap.Form.Fieldset.config
+                    |> Bootstrap.Form.Fieldset.children
+                        [ Bootstrap.Form.Input.text [ defaultValue "Lane 1" ]
+                        , Bootstrap.Form.Input.number
+                            [ defaultValue (toString l1)
+                            , onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2))
+                            ]
+                        , Bootstrap.Form.Input.text [ defaultValue "Lane 2" ]
+                        , Bootstrap.Form.Input.number
+                            [ defaultValue (toString l2)
+                            , onInputUpdateTransformation i toInt (\l -> (SwapLanes l1 l))
+                            ]
                         ]
-                    , Bootstrap.Form.Input.text [ defaultValue "Lane 2" ]
-                    , Bootstrap.Form.Input.number
-                        [ defaultValue (toString l2)
-                        , onInputUpdateTransformation i toInt (\l -> (SwapLanes l1 l))
-                        ]
-                    ]
+                    |> Bootstrap.Form.Fieldset.view
                 ]
 
         DagRenderer.Identity ->

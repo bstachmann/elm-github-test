@@ -6,6 +6,7 @@ import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
 import Bootstrap.Form.InputGroup exposing (..)
 import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col exposing (md12)
 import Bootstrap.Grid.Row
 import Bootstrap.Progress exposing (label)
 import Dag exposing (Dag, empty, node)
@@ -72,7 +73,7 @@ init =
 
 view : Model -> Html Msg
 view model =
-    Grid.container
+    Grid.containerFluid
         []
         [ Grid.row
             []

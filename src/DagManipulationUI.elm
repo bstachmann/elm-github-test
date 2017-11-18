@@ -129,6 +129,7 @@ flowGraphCard i t l =
                         , attribute "aria-controls" bodyCollapseId
                         ]
                         [ text cardHeaderId ]
+                    , transformationView i t
                     ]
                 ]
             , div
@@ -138,11 +139,10 @@ flowGraphCard i t l =
                 ]
                 [ div
                     [ class "card-body" ]
-                    ((transformationView i t)
-                        :: (flowGraphWithHeader
-                                ("flow" ++ (toString i))
-                                ( "egal", l )
-                           )
+                    ((flowGraphWithHeader
+                        ("flow" ++ (toString i))
+                        ( "egal", l )
+                     )
                     )
                 ]
             ]

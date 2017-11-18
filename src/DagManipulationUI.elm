@@ -161,7 +161,7 @@ transformationView i t =
             h5 [] [ Html.text ("kaese" ++ toString t) ]
 
         DagRenderer.SwapLanes l1 l2 ->
-            Bootstrap.Form.form
+            Bootstrap.Form.formInline
                 []
                 [ Bootstrap.Form.Fieldset.config
                     |> Bootstrap.Form.Fieldset.children

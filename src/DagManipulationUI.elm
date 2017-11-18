@@ -3,9 +3,10 @@ module DagManipulationUI exposing (..)
 import Array exposing (Array)
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Fieldset exposing (..)
-import Bootstrap.Form.Input exposing (defaultValue, text)
-import Bootstrap.Form.InputGroup exposing (text)
+import Bootstrap.Form.Input exposing (defaultValue, small, text)
+import Bootstrap.Form.InputGroup exposing (..)
 import Bootstrap.Grid as Grid
+import Bootstrap.Progress exposing (label)
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
@@ -165,11 +166,16 @@ transformationView i t =
                 []
                 [ Bootstrap.Form.Fieldset.config
                     |> Bootstrap.Form.Fieldset.children
-                        [ Bootstrap.Form.Input.text [ defaultValue "Lane 1" ]
-                        , Bootstrap.Form.Input.number
-                            [ defaultValue (toString l1)
-                            , onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2))
-                            ]
+                        [ Bootstrap.Form.InputGroup.config
+                            (Bootstrap.Form.InputGroup.number
+                                [ defaultValue (toString l1)
+                                , onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2))
+                                , Bootstrap.Form.Input.small
+                                ]
+                            )
+                            |> Bootstrap.Form.InputGroup.predecessors
+                                [ Bootstrap.Form.InputGroup.span [] [ Html.text "LANE 1" ] ]
+                            |> Bootstrap.Form.InputGroup.view
                         , Bootstrap.Form.Input.text [ defaultValue "Lane 2" ]
                         , Bootstrap.Form.Input.number
                             [ defaultValue (toString l2)

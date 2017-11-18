@@ -135,7 +135,7 @@ flowGraphCard i t l =
                 ]
             , div
                 [ id bodyCollapseId
-                , class "collapse hide"
+                , class "collapse show"
                 , attribute "aria-labelledby" cardHeaderId
                 ]
                 [ div

@@ -6,6 +6,7 @@ import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
 import Bootstrap.Form.InputGroup exposing (..)
 import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Row
 import Bootstrap.Progress exposing (label)
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
@@ -130,15 +131,7 @@ flowGraphCard i t l =
                         []
                         [ Bootstrap.Form.Fieldset.config
                             |> Bootstrap.Form.Fieldset.children
-                                (a
-                                    [ attribute "data-toggle" "collapse"
-                                    , href <| "#" ++ bodyCollapseId
-                                    , attribute "aria-expanded" "true"
-                                    , attribute "aria-controls" bodyCollapseId
-                                    ]
-                                    [ Html.text cardHeaderId ]
-                                    :: (transformationView i t)
-                                )
+                                (collapseButton bodyCollapseId :: transformationView i t)
                             |> Bootstrap.Form.Fieldset.view
                         ]
                     ]
@@ -157,6 +150,16 @@ flowGraphCard i t l =
                     )
                 ]
             ]
+
+
+collapseButton bodyCollapseId =
+    a
+        [ attribute "data-toggle" "collapse"
+        , href <| "#" ++ bodyCollapseId
+        , attribute "aria-expanded" "true"
+        , attribute "aria-controls" "bodyCollapseId"
+        ]
+        [ Html.text "V" ]
 
 
 transformationView : Int -> Transformation String -> List (Html Msg)

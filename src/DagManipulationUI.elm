@@ -130,8 +130,7 @@ flowGraphCard i t l =
                     [ Bootstrap.Form.formInline
                         []
                         [ Bootstrap.Form.Fieldset.config
-                            |> Bootstrap.Form.Fieldset.children
-                                (collapseButton bodyCollapseId :: transformationView i t)
+                            |> Bootstrap.Form.Fieldset.children (collapseButton bodyCollapseId :: transformationView i t)
                             |> Bootstrap.Form.Fieldset.view
                         ]
                     ]
@@ -152,6 +151,7 @@ flowGraphCard i t l =
             ]
 
 
+collapseButton : String -> Html msg
 collapseButton bodyCollapseId =
     a
         [ attribute "data-toggle" "collapse"

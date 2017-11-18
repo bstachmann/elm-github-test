@@ -2,6 +2,8 @@ module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
 import Bootstrap.Form exposing (label)
+import Bootstrap.Form.Input exposing (defaultValue, text)
+import Bootstrap.Form.InputGroup exposing (text)
 import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
@@ -128,7 +130,7 @@ flowGraphCard i t l =
                         , attribute "aria-expanded" "true"
                         , attribute "aria-controls" bodyCollapseId
                         ]
-                        [ text cardHeaderId ]
+                        [ Html.text cardHeaderId ]
                     , transformationView i t
                     ]
                 ]
@@ -152,37 +154,39 @@ transformationView : Int -> Transformation String -> Html Msg
 transformationView i t =
     case t.transformation of
         CompressColumns ->
-            h5 [] [ text ("wurst" ++ toString t) ]
+            h5 [] [ Html.text ("wurst" ++ toString t) ]
 
         DagRenderer.SwapCells _ _ _ ->
-            h5 [] [ text ("kaese" ++ toString t) ]
+            h5 [] [ Html.text ("kaese" ++ toString t) ]
 
         DagRenderer.SwapLanes l1 l2 ->
             Bootstrap.Form.form
                 []
                 [ div [ class "form-group" ]
-                    [ label [] [ text "Lane 1" ]
-                    , input
-                        [ value <| toString l1, onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2)) ]
-                        []
-                    , label [] [ text "Lane 2" ]
-                    , input
-                        [ value <| toString l2, onInputUpdateTransformation i toInt (\l -> (SwapLanes l1 l)) ]
-                        []
+                    [ Bootstrap.Form.Input.text [ defaultValue "Lane 1" ]
+                    , Bootstrap.Form.Input.number
+                        [ defaultValue (toString l1)
+                        , onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2))
+                        ]
+                    , Bootstrap.Form.Input.text [ defaultValue "Lane 2" ]
+                    , Bootstrap.Form.Input.number
+                        [ defaultValue (toString l2)
+                        , onInputUpdateTransformation i toInt (\l -> (SwapLanes l1 l))
+                        ]
                     ]
                 ]
 
         DagRenderer.Identity ->
-            h5 [] [ text ("gouda" ++ toString t) ]
+            h5 [] [ Html.text ("gouda" ++ toString t) ]
 
 
 onInputUpdateTransformation :
     Int
     -> (String -> Result String a)
     -> (a -> Dsl String)
-    -> Html.Attribute Msg
+    -> Bootstrap.Form.Input.Option Msg
 onInputUpdateTransformation i parseString createTransformation =
-    onInput
+    Bootstrap.Form.Input.onInput
         (\s ->
             s
                 |> parseString

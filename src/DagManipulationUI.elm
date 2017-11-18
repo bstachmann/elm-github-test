@@ -120,7 +120,7 @@ flowGraphCard i t l =
             "transformationBodyBodyCollapse" ++ (toString i)
     in
         div
-            [ class "card" ]
+            []
             [ div
                 [ class "card-header"
                 , id cardHeaderId
@@ -138,7 +138,7 @@ flowGraphCard i t l =
                 , attribute "aria-labelledby" cardHeaderId
                 ]
                 [ div
-                    [ class "card-body" ]
+                    []
                     ((flowGraphWithHeader
                         ("flow" ++ (toString i))
                         ( "egal", l )
@@ -161,10 +161,10 @@ collapseButton bodyCollapseId =
 
 transformationView : Int -> Transformation String -> List (Html Msg)
 transformationView i t =
-    Html.div [ class "inline" ] [ Html.text <| toString t.transformation ]
+    Html.div [] [ Html.text <| toString t.transformation ]
         :: case t.transformation of
             CompressColumns ->
-                [ h5 [ class "inline" ] [ Html.text ("wurst" ++ toString t) ] ]
+                [ h5 [] [ Html.text ("wurst" ++ toString t) ] ]
 
             DagRenderer.SwapCells _ _ _ ->
                 [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
@@ -175,7 +175,7 @@ transformationView i t =
                 ]
 
             DagRenderer.Identity ->
-                [ div [ class "inline" ] [ Html.text ("gouda" ++ toString t) ] ]
+                [ div [] [ Html.text ("gouda" ++ toString t) ] ]
 
 
 intField : Int -> String -> a -> (Int -> Dsl String) -> Html Msg

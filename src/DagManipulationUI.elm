@@ -126,15 +126,22 @@ flowGraphCard i t l =
                 ]
                 [ h5
                     [ class "mb-0" ]
-                    (a
-                        [ attribute "data-toggle" "collapse"
-                        , href <| "#" ++ bodyCollapseId
-                        , attribute "aria-expanded" "true"
-                        , attribute "aria-controls" bodyCollapseId
+                    [ Bootstrap.Form.formInline
+                        []
+                        [ Bootstrap.Form.Fieldset.config
+                            |> Bootstrap.Form.Fieldset.children
+                                (a
+                                    [ attribute "data-toggle" "collapse"
+                                    , href <| "#" ++ bodyCollapseId
+                                    , attribute "aria-expanded" "true"
+                                    , attribute "aria-controls" bodyCollapseId
+                                    ]
+                                    [ Html.text cardHeaderId ]
+                                    :: (transformationView i t)
+                                )
+                            |> Bootstrap.Form.Fieldset.view
                         ]
-                        [ Html.text cardHeaderId ]
-                        :: (transformationView i t)
-                    )
+                    ]
                 ]
             , div
                 [ id bodyCollapseId
@@ -162,15 +169,8 @@ transformationView i t =
             [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
 
         DagRenderer.SwapLanes l1 l2 ->
-            [ Bootstrap.Form.formInline
-                []
-                [ Bootstrap.Form.Fieldset.config
-                    |> Bootstrap.Form.Fieldset.children
-                        [ intField i "1st lane " l1 (\l -> (SwapLanes l l2))
-                        , intField i "2nd lane " l2 (\l -> (SwapLanes l1 l))
-                        ]
-                    |> Bootstrap.Form.Fieldset.view
-                ]
+            [ intField i "1st lane " l1 (\l -> (SwapLanes l l2))
+            , intField i "2nd lane " l2 (\l -> (SwapLanes l1 l))
             ]
 
         DagRenderer.Identity ->

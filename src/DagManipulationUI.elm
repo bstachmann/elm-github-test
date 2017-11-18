@@ -166,27 +166,28 @@ transformationView i t =
                 []
                 [ Bootstrap.Form.Fieldset.config
                     |> Bootstrap.Form.Fieldset.children
-                        [ Bootstrap.Form.InputGroup.config
-                            (Bootstrap.Form.InputGroup.number
-                                [ defaultValue (toString l1)
-                                , onInputUpdateTransformation i toInt (\l -> (SwapLanes l l2))
-                                , Bootstrap.Form.Input.small
-                                ]
-                            )
-                            |> Bootstrap.Form.InputGroup.predecessors
-                                [ Bootstrap.Form.InputGroup.span [] [ Html.text "LANE 1" ] ]
-                            |> Bootstrap.Form.InputGroup.view
-                        , Bootstrap.Form.Input.text [ defaultValue "Lane 2" ]
-                        , Bootstrap.Form.Input.number
-                            [ defaultValue (toString l2)
-                            , onInputUpdateTransformation i toInt (\l -> (SwapLanes l1 l))
-                            ]
+                        [ intField i "1st lane " l1 (\l -> (SwapLanes l l2))
+                        , intField i "2nd lane " l2 (\l -> (SwapLanes l1 l))
                         ]
                     |> Bootstrap.Form.Fieldset.view
                 ]
 
         DagRenderer.Identity ->
             h5 [] [ Html.text ("gouda" ++ toString t) ]
+
+
+intField : Int -> String -> a -> (Int -> Dsl String) -> Html Msg
+intField i labelText currentValue updateTransformation =
+    Bootstrap.Form.InputGroup.config
+        (Bootstrap.Form.InputGroup.number
+            [ defaultValue (toString currentValue)
+            , onInputUpdateTransformation i toInt updateTransformation
+            , Bootstrap.Form.Input.small
+            ]
+        )
+        |> Bootstrap.Form.InputGroup.predecessors
+            [ Bootstrap.Form.InputGroup.span [] [ Html.text labelText ] ]
+        |> Bootstrap.Form.InputGroup.view
 
 
 onInputUpdateTransformation :

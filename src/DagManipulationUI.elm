@@ -116,7 +116,7 @@ flowGraphCard i t l =
         { id = "card" ++ (toString i) -- IMPROVE use global identifier, so we can handle multiple accordions.
         , options = []
         , header =
-            Accordion.header [] (Accordion.toggle [] [ Html.text "HOHO" ])
+            Accordion.header [] (Accordion.toggle [] [ Html.text "show" ])
                 |> Accordion.appendHeader
                     [ Bootstrap.Form.formInline
                         []

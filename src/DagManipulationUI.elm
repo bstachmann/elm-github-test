@@ -135,17 +135,6 @@ flowGraphCard i t l =
         }
 
 
-collapseButton : String -> Html msg
-collapseButton bodyCollapseId =
-    a
-        [ attribute "data-toggle" "collapse"
-        , href <| "#" ++ bodyCollapseId
-        , attribute "aria-expanded" "true"
-        , attribute "aria-controls" "bodyCollapseId"
-        ]
-        [ Html.text "V" ]
-
-
 transformationView : Int -> Transformation String -> List (Html Msg)
 transformationView i t =
     Html.div [] [ Html.text <| toString t.transformation ]

@@ -100,6 +100,7 @@ view model =
 transformationAccordionView : Model -> Html Msg
 transformationAccordionView model =
     Accordion.config (\state -> AccordionMessage state)
+        |> Accordion.withAnimation
         |> Accordion.cards
             [ Accordion.card
                 { id = "card1"

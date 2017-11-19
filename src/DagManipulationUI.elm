@@ -113,7 +113,7 @@ flowGraphCards model =
 flowGraphCard : Int -> Transformation String -> StreamLayout String -> Accordion.Card Msg
 flowGraphCard i t l =
     Accordion.card
-        { id = "card" ++ (toString i)
+        { id = "card" ++ (toString i) -- IMPROVE use global identifier, so we can handle multiple accordions.
         , options = []
         , header =
             Accordion.header [] (Accordion.toggle [] [ Html.text "HOHO" ])

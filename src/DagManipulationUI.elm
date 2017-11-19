@@ -2,6 +2,7 @@ module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
 import Bootstrap.Accordion as Accordion
+import Bootstrap.Card as Card
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
@@ -78,6 +79,12 @@ view model =
             []
             [ Grid.col
                 []
+                [ transformationAccordionView model ]
+            ]
+        , Grid.row
+            []
+            [ Grid.col
+                []
                 [ div
                     [ id "accordion"
                     , attribute "role" "tablist"
@@ -92,7 +99,14 @@ view model =
 transformationAccordionView : Model -> Html Msg
 transformationAccordionView model =
     Accordion.config (\state -> Nothing)
-        |> Accordion.cards []
+        |> Accordion.cards
+            [ Accordion.card
+                { id = "card1"
+                , options = []
+                , blocks = [ Accordion.block [] [ Card.text [] [ Html.text "Content" ] ] ]
+                , header = Accordion.header [] <| Accordion.toggle [] [ Html.text "Juhu" ]
+                }
+            ]
         |> Accordion.view model.transformationAccordionState
 
 

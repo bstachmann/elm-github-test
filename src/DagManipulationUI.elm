@@ -112,42 +112,27 @@ flowGraphCards model =
 
 flowGraphCard : Int -> Transformation String -> StreamLayout String -> Accordion.Card Msg
 flowGraphCard i t l =
-    let
-        -- IMPROVE make unique if multiple instances of this graph are active
-        transformationId =
-            toString i
-
-        cardHeaderId =
-            (toString t.transformation)
-
-        bodyCollapseId =
-            "transformationBodyBodyCollapse" ++ (toString i)
-    in
-        Accordion.card
-            { id = "card1"
-            , options = []
-            , header =
-                Accordion.header
-                    []
-                <|
-                    Accordion.toggle
+    Accordion.card
+        { id = "card" ++ (toString i)
+        , options = []
+        , header =
+            Accordion.header [] (Accordion.toggle [] [ Html.text "HOHO" ])
+                |> Accordion.appendHeader
+                    [ Bootstrap.Form.formInline
                         []
-                        [ Bootstrap.Form.formInline
-                            []
-                            [ Bootstrap.Form.Fieldset.config
-                                |> Bootstrap.Form.Fieldset.children (collapseButton bodyCollapseId :: transformationView i t)
-                                |> Bootstrap.Form.Fieldset.view
-                            ]
+                        [ Bootstrap.Form.Fieldset.config
+                            |> Bootstrap.Form.Fieldset.children (transformationView i t)
+                            |> Bootstrap.Form.Fieldset.view
                         ]
-            , blocks =
-                [ Accordion.block
-                    []
-                    [ Card.text
-                        []
-                        (flowGraphWithHeader ("flow" ++ (toString i)) ( "egal", l ))
                     ]
+        , blocks =
+            [ Accordion.block
+                []
+                [ Card.custom
+                    (div [] <| flowGraphWithHeader ("flow" ++ (toString i)) ( "egal", l ))
                 ]
-            }
+            ]
+        }
 
 
 collapseButton : String -> Html msg
@@ -230,4 +215,4 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Accordion.subscriptions model.transformationAccordionState AccordionMessage

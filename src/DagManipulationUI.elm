@@ -82,18 +82,6 @@ view model =
                 []
                 [ transformationAccordionView model ]
             ]
-        , Grid.row
-            []
-            [ Grid.col
-                []
-                [ div
-                    [ id "accordion"
-                    , attribute "role" "tablist"
-                    ]
-                  <|
-                    flowGraphCards model
-                ]
-            ]
         ]
 
 
@@ -101,18 +89,11 @@ transformationAccordionView : Model -> Html Msg
 transformationAccordionView model =
     Accordion.config (\state -> AccordionMessage state)
         |> Accordion.withAnimation
-        |> Accordion.cards
-            [ Accordion.card
-                { id = "card1"
-                , options = []
-                , blocks = [ Accordion.block [] [ Card.text [] [ Html.text "Content" ] ] ]
-                , header = Accordion.header [] <| Accordion.toggle [] [ Html.text "Juhu" ]
-                }
-            ]
+        |> Accordion.cards (flowGraphCards model)
         |> Accordion.view model.transformationAccordionState
 
 
-flowGraphCards : Model -> List (Html Msg)
+flowGraphCards : Model -> List (Accordion.Card Msg)
 flowGraphCards model =
     model.transformations
         |> Array.foldl
@@ -129,7 +110,7 @@ flowGraphCards model =
         |> indexedMap (\i ( t, l ) -> flowGraphCard i t l)
 
 
-flowGraphCard : Int -> Transformation String -> StreamLayout String -> Html Msg
+flowGraphCard : Int -> Transformation String -> StreamLayout String -> Accordion.Card Msg
 flowGraphCard i t l =
     let
         -- IMPROVE make unique if multiple instances of this graph are active
@@ -142,33 +123,31 @@ flowGraphCard i t l =
         bodyCollapseId =
             "transformationBodyBodyCollapse" ++ (toString i)
     in
-        div
-            []
-            [ div
-                [ class "card-header"
-                , id cardHeaderId
-                ]
-                [ Bootstrap.Form.formInline
+        Accordion.card
+            { id = "card1"
+            , options = []
+            , header =
+                Accordion.header
                     []
-                    [ Bootstrap.Form.Fieldset.config
-                        |> Bootstrap.Form.Fieldset.children (collapseButton bodyCollapseId :: transformationView i t)
-                        |> Bootstrap.Form.Fieldset.view
+                <|
+                    Accordion.toggle
+                        []
+                        [ Bootstrap.Form.formInline
+                            []
+                            [ Bootstrap.Form.Fieldset.config
+                                |> Bootstrap.Form.Fieldset.children (collapseButton bodyCollapseId :: transformationView i t)
+                                |> Bootstrap.Form.Fieldset.view
+                            ]
+                        ]
+            , blocks =
+                [ Accordion.block
+                    []
+                    [ Card.text
+                        []
+                        (flowGraphWithHeader ("flow" ++ (toString i)) ( "egal", l ))
                     ]
                 ]
-            , div
-                [ id bodyCollapseId
-                , class "collapse show"
-                , attribute "aria-labelledby" cardHeaderId
-                ]
-                [ div
-                    []
-                    ((flowGraphWithHeader
-                        ("flow" ++ (toString i))
-                        ( "egal", l )
-                     )
-                    )
-                ]
-            ]
+            }
 
 
 collapseButton : String -> Html msg

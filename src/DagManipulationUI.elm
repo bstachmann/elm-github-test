@@ -1,6 +1,7 @@
 module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
+import Bootstrap.Accordion
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
@@ -32,6 +33,7 @@ type alias Model =
     { dag : Dag String String
     , initialLayout : StreamLayout String
     , transformations : Array (Transformation String)
+    , transformationAccordionState : Bootstrap.Accordion.State
     }
 
 
@@ -66,6 +68,7 @@ init =
                     , { transformation = DagRenderer.CompressColumns }
                     , { transformation = DagRenderer.SwapLanes 0 1 }
                     ]
+          , transformationAccordionState = Bootstrap.Accordion.initialState
           }
         , Cmd.none
         )

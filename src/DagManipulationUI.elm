@@ -120,10 +120,13 @@ flowGraphCard i t l =
                 |> Accordion.appendHeader
                     [ Bootstrap.Form.formInline
                         []
-                        [ Bootstrap.Form.Fieldset.config
-                            |> Bootstrap.Form.Fieldset.children (transformationView i t)
-                            |> Bootstrap.Form.Fieldset.view
-                        ]
+                      <|
+                        transformationView i t
+
+                    -- [ Bootstrap.Form.Fieldset.config
+                    --     |> Bootstrap.Form.Fieldset.children (transformationView i t)
+                    --     |> Bootstrap.Form.Fieldset.view
+                    -- ]
                     ]
         , blocks =
             [ Accordion.block

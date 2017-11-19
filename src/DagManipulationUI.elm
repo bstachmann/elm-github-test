@@ -1,7 +1,7 @@
 module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
-import Bootstrap.Accordion as Accordion
+import Bootstrap.Accordion as Accordion exposing (State)
 import Bootstrap.Card as Card
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Fieldset exposing (..)
@@ -37,6 +37,7 @@ type alias Model =
 type Msg
     = Nothing
     | UpdateTransformation Int (Result String (DagRenderer.Dsl String))
+    | AccordionMessage Accordion.State
 
 
 type alias Transformation i =
@@ -98,7 +99,7 @@ view model =
 
 transformationAccordionView : Model -> Html Msg
 transformationAccordionView model =
-    Accordion.config (\state -> Nothing)
+    Accordion.config (\state -> AccordionMessage state)
         |> Accordion.cards
             [ Accordion.card
                 { id = "card1"
@@ -242,6 +243,9 @@ update msg model =
                 |> Result.withDefault model
             , Cmd.none
             )
+
+        AccordionMessage state ->
+            ( { model | transformationAccordionState = state }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

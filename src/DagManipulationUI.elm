@@ -1,20 +1,16 @@
 module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
-import Bootstrap.Accordion
+import Bootstrap.Accordion as Accordion
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
 import Bootstrap.Form.InputGroup exposing (..)
 import Bootstrap.Grid as Grid
-import Bootstrap.Grid.Col exposing (md12)
-import Bootstrap.Grid.Row
-import Bootstrap.Progress exposing (label)
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
 import Html.Attributes exposing (attribute, class, href, id, value)
-import Html.Events exposing (onInput)
 import List exposing (foldl, indexedMap)
 import String exposing (toInt)
 
@@ -33,7 +29,7 @@ type alias Model =
     { dag : Dag String String
     , initialLayout : StreamLayout String
     , transformations : Array (Transformation String)
-    , transformationAccordionState : Bootstrap.Accordion.State
+    , transformationAccordionState : Accordion.State
     }
 
 
@@ -68,7 +64,7 @@ init =
                     , { transformation = DagRenderer.CompressColumns }
                     , { transformation = DagRenderer.SwapLanes 0 1 }
                     ]
-          , transformationAccordionState = Bootstrap.Accordion.initialState
+          , transformationAccordionState = Accordion.initialState
           }
         , Cmd.none
         )
@@ -91,6 +87,13 @@ view model =
                 ]
             ]
         ]
+
+
+transformationAccordionView : Model -> Html Msg
+transformationAccordionView model =
+    Accordion.config (\state -> Nothing)
+        |> Accordion.cards []
+        |> Accordion.view model.transformationAccordionState
 
 
 flowGraphCards : Model -> List (Html Msg)

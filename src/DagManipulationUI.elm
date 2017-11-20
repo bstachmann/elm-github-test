@@ -1,6 +1,7 @@
 module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
+import Array.Extra
 import Bootstrap.Accordion as Accordion exposing (State)
 import Bootstrap.Button exposing (button, onClick, primary)
 import Bootstrap.Card as Card
@@ -12,6 +13,7 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
 import List exposing (foldl, indexedMap)
+import List.Extra exposing (removeAt)
 import String exposing (toInt)
 
 
@@ -36,6 +38,7 @@ type alias Model =
 type Msg
     = Nothing
     | UpdateTransformation Int (Result String (DagRenderer.Dsl String))
+    | DeleteTransformation Int
     | AccordionMessage Accordion.State
 
 
@@ -121,13 +124,10 @@ flowGraphCard i t l =
                         []
                       <|
                         transformationView i t
-
-                    -- [ Bootstrap.Form.Fieldset.config
-                    --     |> Bootstrap.Form.Fieldset.children (transformationView i t)
-                    --     |> Bootstrap.Form.Fieldset.view
-                    -- ]
+                    , Bootstrap.Button.button
+                        [ Bootstrap.Button.secondary, onClick (DeleteTransformation i) ]
+                        [ Html.text "delete" ]
                     ]
-                |> Accordion.appendHeader [ Bootstrap.Button.button [ Bootstrap.Button.secondary, onClick (Nothing) ] [ Html.text "delete" ] ]
         , blocks =
             [ Accordion.block
                 []
@@ -203,6 +203,9 @@ update msg model =
 
         AccordionMessage state ->
             ( { model | transformationAccordionState = state }, Cmd.none )
+
+        DeleteTransformation i ->
+            ( { model | transformations = Array.Extra.removeAt i model.transformations }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

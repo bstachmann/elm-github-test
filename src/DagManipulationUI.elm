@@ -127,9 +127,9 @@ flowGraphCard i t l =
                     , Bootstrap.Button.button
                         [ Bootstrap.Button.secondary, onClick (DeleteTransformation i) ]
                         [ Html.text "delete!" ]
-                    , Bootstrap.Button.button
-                        [ Bootstrap.Button.secondary, onClick (AddTransformationAfter i (CompressColumns)) ]
-                        [ Html.text "+CompressColumns" ]
+                    , addTransformationButton i CompressColumns
+                    , addTransformationButton i (SwapLanes 0 0)
+                    , addTransformationButton i (SwapCells 0 0 0)
                     ]
         , blocks =
             [ Accordion.block
@@ -139,6 +139,13 @@ flowGraphCard i t l =
                 ]
             ]
         }
+
+
+addTransformationButton : Int -> Dsl String -> Html Msg
+addTransformationButton i t =
+    Bootstrap.Button.button
+        [ Bootstrap.Button.secondary, onClick (AddTransformationAfter i t) ]
+        [ Html.text <| "+" ++ (toString t) ]
 
 
 transformationView : Int -> Transformation String -> List (Html Msg)

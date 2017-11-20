@@ -2,6 +2,7 @@ module DagManipulationUI exposing (..)
 
 import Array exposing (Array)
 import Bootstrap.Accordion as Accordion exposing (State)
+import Bootstrap.Button exposing (button, onClick, primary)
 import Bootstrap.Card as Card
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
@@ -126,6 +127,7 @@ flowGraphCard i t l =
                     --     |> Bootstrap.Form.Fieldset.view
                     -- ]
                     ]
+                |> Accordion.appendHeader [ Bootstrap.Button.button [ Bootstrap.Button.secondary, onClick (Nothing) ] [ Html.text "delete" ] ]
         , blocks =
             [ Accordion.block
                 []

@@ -4,14 +4,12 @@ import Array exposing (Array)
 import Bootstrap.Accordion as Accordion exposing (State)
 import Bootstrap.Card as Card
 import Bootstrap.Form exposing (label)
-import Bootstrap.Form.Fieldset exposing (..)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
 import Bootstrap.Form.InputGroup exposing (..)
 import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
-import Html.Attributes exposing (attribute, class, href, id, value)
 import List exposing (foldl, indexedMap)
 import String exposing (toInt)
 
@@ -117,7 +115,7 @@ flowGraphCard i t l =
         , options = []
         , header =
             Accordion.header [] (Accordion.toggle [] [ Html.text "show" ])
-                |> Accordion.appendHeader
+                |> Accordion.prependHeader
                     [ Bootstrap.Form.formInline
                         []
                       <|
@@ -143,10 +141,10 @@ transformationView i t =
     Html.div [] [ Html.text <| toString t.transformation ]
         :: case t.transformation of
             CompressColumns ->
-                [ h5 [] [ Html.text ("wurst" ++ toString t) ] ]
+                []
 
             DagRenderer.SwapCells _ _ _ ->
-                [ h5 [] [ Html.text ("kaese" ++ toString t) ] ]
+                []
 
             DagRenderer.SwapLanes l1 l2 ->
                 [ intField i "1st lane " l1 (\l -> (SwapLanes l l2))
@@ -154,7 +152,7 @@ transformationView i t =
                 ]
 
             DagRenderer.Identity ->
-                [ div [] [ Html.text ("gouda" ++ toString t) ] ]
+                []
 
 
 intField : Int -> String -> a -> (Int -> Dsl String) -> Html Msg

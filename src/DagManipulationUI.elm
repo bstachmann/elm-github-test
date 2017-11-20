@@ -1,7 +1,7 @@
 module DagManipulationUI exposing (..)
 
-import Array exposing (Array)
-import Array.Extra
+import Array exposing (Array, push)
+import Array.Extra exposing (sliceFrom, sliceUntil, splitAt)
 import Bootstrap.Accordion as Accordion exposing (State)
 import Bootstrap.Button exposing (button, onClick, primary)
 import Bootstrap.Card as Card
@@ -13,7 +13,6 @@ import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
 import List exposing (foldl, indexedMap)
-import List.Extra exposing (removeAt)
 import String exposing (toInt)
 
 
@@ -39,6 +38,7 @@ type Msg
     = Nothing
     | UpdateTransformation Int (Result String (DagRenderer.Dsl String))
     | DeleteTransformation Int
+    | AddTransformationAfter Int (Dsl String)
     | AccordionMessage Accordion.State
 
 
@@ -126,7 +126,10 @@ flowGraphCard i t l =
                         transformationView i t
                     , Bootstrap.Button.button
                         [ Bootstrap.Button.secondary, onClick (DeleteTransformation i) ]
-                        [ Html.text "delete" ]
+                        [ Html.text "delete!" ]
+                    , Bootstrap.Button.button
+                        [ Bootstrap.Button.secondary, onClick (AddTransformationAfter i (CompressColumns)) ]
+                        [ Html.text "+CompressColumns" ]
                     ]
         , blocks =
             [ Accordion.block
@@ -206,6 +209,18 @@ update msg model =
 
         DeleteTransformation i ->
             ( { model | transformations = Array.Extra.removeAt i model.transformations }, Cmd.none )
+
+        AddTransformationAfter i t ->
+            ( { model
+                | transformations =
+                    let
+                        ( l, r ) =
+                            splitAt (i + 1) model.transformations
+                    in
+                        Array.append (push { transformation = t } l) r
+              }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg

@@ -5,7 +5,7 @@ import Array.Extra exposing (sliceFrom, sliceUntil, splitAt)
 import Bootstrap.Accordion as Accordion exposing (State)
 import Bootstrap.Button exposing (button, disabled, onClick, primary)
 import Bootstrap.Card as Card
-import Bootstrap.Form exposing (label)
+import Bootstrap.Form exposing (formInline, label)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
 import Bootstrap.Form.InputGroup exposing (..)
 import Bootstrap.Grid as Grid
@@ -122,10 +122,7 @@ flowGraphCard i t l =
         , header =
             Accordion.header [] (Accordion.toggle [] [ Html.text "show" ])
                 |> Accordion.prependHeader
-                    [ Bootstrap.Form.formInline
-                        []
-                      <|
-                        transformationView i t
+                    [ formInline [] (transformationView i t)
                     , actionButton (i > 0) "Delete" (DeleteTransformation i)
                     , addTransformationButton i CompressColumns
                     , addTransformationButton i (SwapLanes 0 0)

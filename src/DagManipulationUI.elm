@@ -126,7 +126,7 @@ flowGraphCard i t l =
                         []
                       <|
                         transformationView i t
-                    , actionButton (i > 0) (DeleteTransformation i)
+                    , transformationButton (i > 0) (DeleteTransformation i)
                     , addTransformationButton i CompressColumns
                     , addTransformationButton i (SwapLanes 0 0)
                     , addTransformationButton i (SwapCells 0 0 0)
@@ -141,8 +141,8 @@ flowGraphCard i t l =
         }
 
 
-actionButton : Bool -> Msg -> Html Msg
-actionButton enabled msg =
+transformationButton : Bool -> Msg -> Html Msg
+transformationButton enabled msg =
     Bootstrap.Button.button
         [ Bootstrap.Button.secondary
         , onClick

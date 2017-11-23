@@ -1,6 +1,6 @@
 module DagManipulationUI exposing (..)
 
-import Array exposing (Array, push)
+import Array exposing (Array, fromList, push)
 import Array.Extra exposing (sliceFrom, sliceUntil, splitAt)
 import Bootstrap.Accordion as Accordion exposing (State)
 import Bootstrap.Button exposing (button, disabled, onClick, primary)
@@ -63,13 +63,7 @@ init =
     in
         ( { dag = g
           , initialLayout = toFlowLayout g
-          , transformations =
-                Array.fromList
-                    [ { transformation = DagRenderer.Identity }
-                    , { transformation = DagRenderer.SwapLanes 1 3 }
-                    , { transformation = DagRenderer.CompressColumns }
-                    , { transformation = DagRenderer.SwapLanes 0 1 }
-                    ]
+          , transformations = fromList [ { transformation = DagRenderer.Identity } ]
           , transformationAccordionState = Accordion.initialState
           }
         , Cmd.none

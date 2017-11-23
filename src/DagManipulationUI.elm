@@ -3,7 +3,7 @@ module DagManipulationUI exposing (..)
 import Array exposing (Array, push)
 import Array.Extra exposing (sliceFrom, sliceUntil, splitAt)
 import Bootstrap.Accordion as Accordion exposing (State)
-import Bootstrap.Button exposing (button, onClick, primary)
+import Bootstrap.Button exposing (button, disabled, onClick, primary)
 import Bootstrap.Card as Card
 import Bootstrap.Form exposing (label)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
@@ -12,8 +12,10 @@ import Bootstrap.Grid as Grid
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
+import Html.Attributes
 import List exposing (foldl, indexedMap)
 import String exposing (toInt)
+import Svg.Attributes exposing (mode)
 
 
 main : Program Never Model Msg
@@ -124,9 +126,7 @@ flowGraphCard i t l =
                         []
                       <|
                         transformationView i t
-                    , Bootstrap.Button.button
-                        [ Bootstrap.Button.secondary, onClick (DeleteTransformation i) ]
-                        [ Html.text "delete!" ]
+                    , actionButton (i > 0) (DeleteTransformation i)
                     , addTransformationButton i CompressColumns
                     , addTransformationButton i (SwapLanes 0 0)
                     , addTransformationButton i (SwapCells 0 0 0)
@@ -139,6 +139,21 @@ flowGraphCard i t l =
                 ]
             ]
         }
+
+
+actionButton : Bool -> Msg -> Html Msg
+actionButton enabled msg =
+    Bootstrap.Button.button
+        [ Bootstrap.Button.secondary
+        , onClick
+            (if enabled then
+                msg
+             else
+                Nothing
+            )
+        , disabled (not enabled)
+        ]
+        [ Html.text "delete!" ]
 
 
 addTransformationButton : Int -> Dsl String -> Html Msg

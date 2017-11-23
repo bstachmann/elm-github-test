@@ -121,15 +121,20 @@ flowGraphCard i t l =
                 [ Card.custom
                     (div [ Html.Attributes.class "img-fluid" ] <| flowGraphWithHeader ("flow" ++ (toString i)) ( "egal", l ))
                 , Card.custom <|
-                    formInline []
-                        [ actionButton (i > 0) "Delete" (DeleteTransformation i)
-                        , transformationButton i CompressColumns
-                        , transformationButton i (SwapLanes 0 0)
-                        , transformationButton i (SwapCells 0 0 0)
-                        ]
+                    formInline [] <|
+                        actionButtonsForTransformation i
                 ]
             ]
         }
+
+
+actionButtonsForTransformation : Int -> List (Html Msg)
+actionButtonsForTransformation i =
+    [ actionButton (i > 0) "Delete" (DeleteTransformation i)
+    , transformationButton i CompressColumns
+    , transformationButton i (SwapLanes 0 0)
+    , transformationButton i (SwapCells 0 0 0)
+    ]
 
 
 actionButton : Bool -> String -> Msg -> Html Msg

@@ -118,19 +118,21 @@ flowGraphCard i t l =
         , options = []
         , header =
             Accordion.prependHeader
-                [ formInline [] (transformationView i t)
-                , actionButton (i > 0) "Delete" (DeleteTransformation i)
-                , addTransformationButton i CompressColumns
-                , addTransformationButton i (SwapLanes 0 0)
-                , addTransformationButton i (SwapCells 0 0 0)
-                ]
+                [ formInline [] (transformationView i t) ]
             <|
                 Accordion.header [] (Accordion.toggle [] [ Html.text "Show" ])
         , blocks =
             [ Accordion.block
                 []
                 [ Card.custom
-                    (div [] <| flowGraphWithHeader ("flow" ++ (toString i)) ( "egal", l ))
+                    (div [ Html.Attributes.class "img-fluid" ] <| flowGraphWithHeader ("flow" ++ (toString i)) ( "egal", l ))
+                , Card.custom <|
+                    formInline []
+                        [ actionButton (i > 0) "Delete" (DeleteTransformation i)
+                        , addTransformationButton i CompressColumns
+                        , addTransformationButton i (SwapLanes 0 0)
+                        , addTransformationButton i (SwapCells 0 0 0)
+                        ]
                 ]
             ]
         }

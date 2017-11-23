@@ -118,7 +118,7 @@ flowGraphCard i t l =
         , options = []
         , header =
             Accordion.prependHeader
-                [ formInline [] (transformationView i t) ]
+                [ containerFluid [] (transformationView i t) ]
             <|
                 Accordion.header [] (Accordion.toggle [] [ Html.text "Show" ])
         , blocks =

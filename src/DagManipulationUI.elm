@@ -15,7 +15,6 @@ import Html exposing (Html, a, div, h5, input, text)
 import Html.Attributes
 import List exposing (foldl, indexedMap)
 import String exposing (toInt)
-import Svg.Attributes exposing (mode)
 
 
 main : Program Never Model Msg

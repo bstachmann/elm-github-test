@@ -123,9 +123,9 @@ flowGraphCard i t l =
                 , Card.custom <|
                     formInline []
                         [ actionButton (i > 0) "Delete" (DeleteTransformation i)
-                        , addTransformationButton i CompressColumns
-                        , addTransformationButton i (SwapLanes 0 0)
-                        , addTransformationButton i (SwapCells 0 0 0)
+                        , transformationButton i CompressColumns
+                        , transformationButton i (SwapLanes 0 0)
+                        , transformationButton i (SwapCells 0 0 0)
                         ]
                 ]
             ]
@@ -147,8 +147,8 @@ actionButton enabled label msg =
         [ Html.text label ]
 
 
-addTransformationButton : Int -> Dsl String -> Html Msg
-addTransformationButton i t =
+transformationButton : Int -> Dsl String -> Html Msg
+transformationButton i t =
     actionButton True ("+" ++ (toString t)) (AddTransformationAfter i t)
 
 

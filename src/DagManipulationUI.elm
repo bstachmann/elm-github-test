@@ -8,7 +8,7 @@ import Bootstrap.Card as Card
 import Bootstrap.Form exposing (formInline, label)
 import Bootstrap.Form.Input exposing (defaultValue, small, text)
 import Bootstrap.Form.InputGroup exposing (..)
-import Bootstrap.Grid as Grid
+import Bootstrap.Grid as Grid exposing (col, containerFluid, row)
 import Dag exposing (Dag, empty, node)
 import DagRenderer exposing (..)
 import Html exposing (Html, a, div, h5, input, text)
@@ -78,14 +78,11 @@ init =
 
 view : Model -> Html Msg
 view model =
-    Grid.containerFluid
+    containerFluid
         []
-        [ Grid.row
+        [ row
             []
-            [ Grid.col
-                []
-                [ transformationAccordionView model ]
-            ]
+            [ col [] [ transformationAccordionView model ] ]
         ]
 
 

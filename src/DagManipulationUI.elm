@@ -126,7 +126,7 @@ flowGraphCard i t l =
                         []
                       <|
                         transformationView i t
-                    , transformationButton (i > 0) (DeleteTransformation i)
+                    , actionButton (i > 0) "Delete" (DeleteTransformation i)
                     , addTransformationButton i CompressColumns
                     , addTransformationButton i (SwapLanes 0 0)
                     , addTransformationButton i (SwapCells 0 0 0)
@@ -141,8 +141,8 @@ flowGraphCard i t l =
         }
 
 
-transformationButton : Bool -> Msg -> Html Msg
-transformationButton enabled msg =
+actionButton : Bool -> String -> Msg -> Html Msg
+actionButton enabled label msg =
     Bootstrap.Button.button
         [ Bootstrap.Button.secondary
         , onClick
@@ -153,14 +153,12 @@ transformationButton enabled msg =
             )
         , disabled (not enabled)
         ]
-        [ Html.text "delete!" ]
+        [ Html.text label ]
 
 
 addTransformationButton : Int -> Dsl String -> Html Msg
 addTransformationButton i t =
-    Bootstrap.Button.button
-        [ Bootstrap.Button.secondary, onClick (AddTransformationAfter i t) ]
-        [ Html.text <| "+" ++ (toString t) ]
+    actionButton True ("+" ++ (toString t)) (AddTransformationAfter i t)
 
 
 transformationView : Int -> Transformation String -> List (Html Msg)

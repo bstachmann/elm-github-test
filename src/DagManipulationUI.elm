@@ -120,14 +120,15 @@ flowGraphCard i t l =
         { id = "card" ++ (toString i) -- IMPROVE use global identifier, so we can handle multiple accordions.
         , options = []
         , header =
-            Accordion.header [] (Accordion.toggle [] [ Html.text "show" ])
-                |> Accordion.prependHeader
-                    [ formInline [] (transformationView i t)
-                    , actionButton (i > 0) "Delete" (DeleteTransformation i)
-                    , addTransformationButton i CompressColumns
-                    , addTransformationButton i (SwapLanes 0 0)
-                    , addTransformationButton i (SwapCells 0 0 0)
-                    ]
+            Accordion.prependHeader
+                [ formInline [] (transformationView i t)
+                , actionButton (i > 0) "Delete" (DeleteTransformation i)
+                , addTransformationButton i CompressColumns
+                , addTransformationButton i (SwapLanes 0 0)
+                , addTransformationButton i (SwapCells 0 0 0)
+                ]
+            <|
+                Accordion.header [] (Accordion.toggle [] [ Html.text "Show" ])
         , blocks =
             [ Accordion.block
                 []
